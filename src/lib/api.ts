@@ -1,77 +1,104 @@
-
 import { NewsArticle, Blog, Category, Advertisement } from '@/lib/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
-
-interface AuthData {
-    email: string;
-    passowrd: string
-}
-
-interface ContactData {
-    name: string;
-    email: string;
-    message: string;
-}
+const API_BASE_URL = 'https://news-blog-api-mzxq.onrender.com/';
 
 async function fetchAPI(endpoint: string, options: RequestInit = {}, token?: string) {
     const url = `${API_BASE_URL}${endpoint}`;
+    const headers: Record<string, string> = { ...options.headers as Record<string, string> };
+    if (options.body) headers['Content-Type'] = 'application/json';
+    if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        ...options.headers,
-    };
-
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const response = await fetch(url, {
-        ...options,
-        headers,
-    });
+    const response = await fetch(url, { ...options, headers });
 
     if (!response.ok) {
-        if (response.status === 401) {
-            throw new Error('API call failed: Unauthorized');
-        }
-        throw new Error(`API call failed: ${response.statusText}`);
+        let errorBody;
+        try { errorBody = await response.json(); } catch (e) { errorBody = { message: response.statusText }; }
+        console.error('API Error:', errorBody);
+        throw new Error(errorBody.message || `API call failed: ${response.statusText}`);
     }
 
-    return response.json();
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) return response.json();
+    return {};
 }
 
-// Auth
-export const register = (data: AuthData) => fetchAPI('/api/auth/register', { method: 'POST', body: JSON.stringify(data) });
-export const login = (data: AuthData) => fetchAPI('/api/auth/login', { method: 'POST', body: JSON.stringify(data) });
+// --- DATA FETCHING LOGIC ---
 
-// News
-export const getNews = (token?: string): Promise<NewsArticle[]> => fetchAPI('/api/news', {}, token);
-export const getNewsById = (id: string, token?: string): Promise<NewsArticle> => fetchAPI(`/api/news/${id}`, {}, token);
-export const createNews = (data: Partial<NewsArticle>, token: string): Promise<NewsArticle> => fetchAPI('/api/news', { method: 'POST', body: JSON.stringify(data) }, token);
-export const updateNews = (id: string, data: Partial<NewsArticle>, token: string): Promise<NewsArticle> => fetchAPI(`/api/news/${id}`, { method: 'PUT', body: JSON.stringify(data) }, token);
-export const deleteNews = (id: string, token: string): Promise<void> => fetchAPI(`/api/news/${id}`, { method: 'DELETE' }, token);
+export const getNews = async (token?: string): Promise<NewsArticle[]> => {
+    const categoryMap = new Map<number, string>();
+    try {
+        const categoriesData = await fetchAPI('api/categories/', {}, token);
+        if (categoriesData && Array.isArray(categoriesData)) {
+            categoriesData.forEach(category => categoryMap.set(category.id, category.name));
+        }
+    } catch (error) {
+        console.error("Failed to fetch categories:", error);
+    }
+
+    const newsData = await fetchAPI('api/news/', {}, token);
+    if (!newsData || !Array.isArray(newsData)) return [];
+
+    return newsData.map(article => {
+        const categoryId = article.category_id ? parseInt(article.category_id, 10) : null;
+        const category_name = categoryId ? categoryMap.get(categoryId) || 'general' : 'general';
+
+        return {
+            id: article.id.toString(),
+            title: article.title,
+            summary: article.content ? article.content.substring(0, 100) + '...' : '',
+            full_content: article.content || '',
+            imageUrl: article.imageUrl || '',
+            category: article.category_id ? article.category_id.toString() : '',
+            category_name: category_name,
+            created_at: article.created_at,
+            updated_at: article.updated_at || article.created_at,
+        };
+    });
+};
+
+export const getNewsById = async (id: string, token?: string): Promise<NewsArticle | undefined> => {
+    try {
+        const article = await fetchAPI(`api/news/${id}/`, {}, token);
+        if (!article) return undefined;
+
+        let category_name = 'general';
+        if (article.category_id) {
+            try {
+                const categoryData = await fetchAPI(`api/categories/${article.category_id}/`, {}, token);
+                if (categoryData && categoryData.name) {
+                    category_name = categoryData.name;
+                }
+            } catch (catError) {
+                console.error(`Could not fetch category for article ${id}:`, catError);
+            }
+        }
+
+        return {
+            id: article.id.toString(),
+            title: article.title,
+            summary: article.content ? article.content.substring(0, 100) + '...' : '',
+            full_content: article.content || '',
+            imageUrl: article.imageUrl || '',
+            category: article.category_id ? article.category_id.toString() : '',
+            category_name: category_name,
+            created_at: article.created_at,
+            updated_at: article.updated_at || article.created_at,
+        };
+    } catch (error) {
+        console.error(`Error fetching news by id ${id}:`, error);
+        return undefined;
+    }
+};
+
+export const getBlogs = (token?: string): Promise<Blog[]> => fetchAPI('api/blogs/', {}, token);
+
+// Auth
+export const register = (data: any) => fetchAPI('api/auth/register', { method: 'POST', body: JSON.stringify(data) });
+export const login = (data: any) => fetchAPI('api/auth/login', { method: 'POST', body: JSON.stringify(data) });
 
 // Categories
-export const getCategories = (token?: string): Promise<Category[]> => fetchAPI('/api/categories', {}, token);
-export const getCategoryById = (id: string, token?: string): Promise<Category> => fetchAPI(`/api/categories/${id}`, {}, token);
-export const createCategory = (data: Partial<Category>, token: string): Promise<Category> => fetchAPI('/api/categories', { method: 'POST', body: JSON.stringify(data) }, token);
-export const updateCategory = (id: string, data: Partial<Category>, token: string): Promise<Category> => fetchAPI(`/api/categories/${id}`, { method: 'PUT', body: JSON.stringify(data) }, token);
-export const deleteCategory = (id: string, token: string): Promise<void> => fetchAPI(`/api/categories/${id}`, { method: 'DELETE' }, token);
-
-// Blogs
-export const getBlogs = (token?: string): Promise<Blog[]> => fetchAPI('/api/blogs', {}, token);
-export const getBlogById = (id: string, token?: string): Promise<Blog> => fetchAPI(`/api/blogs/${id}`, {}, token);
-export const createBlog = (data: Partial<Blog>, token: string): Promise<Blog> => fetchAPI('/api/blogs', { method: 'POST', body: JSON.stringify(data) }, token);
-export const updateBlog = (id: string, data: Partial<Blog>, token: string): Promise<Blog> => fetchAPI(`/api/blogs/${id}`, { method: 'PUT', body: JSON.stringify(data) }, token);
-export const deleteBlog = (id: string, token: string): Promise<void> => fetchAPI(`/api/blogs/${id}`, { method: 'DELETE' }, token);
-
-// Advertisements
-export const getAdvertisements = (token?: string): Promise<Advertisement[]> => fetchAPI('/api/advertisements', {}, token);
-export const getAdvertisementById = (id: string, token?: string): Promise<Advertisement> => fetchAPI(`/api/advertisements/${id}`, {}, token);
-export const createAdvertisement = (data: Partial<Advertisement>, token: string): Promise<Advertisement> => fetchAPI('/api/advertisements', { method: 'POST', body: JSON.stringify(data) }, token);
-export const updateAdvertisement = (id: string, data: Partial<Advertisement>, token: string): Promise<Advertisement> => fetchAPI(`/api/advertisements/${id}`, { method: 'PUT', body: JSON.stringify(data) }, token);
-export const deleteAdvertisement = (id: string, token: string): Promise<void> => fetchAPI(`/api/advertisements/${id}`, { method: 'DELETE' }, token);
+export const getCategories = (token?: string): Promise<Category[]> => fetchAPI('api/categories/', {}, token);
+export const createCategory = (data: Partial<Category>, token: string): Promise<Category> => fetchAPI('api/categories/', { method: 'POST', body: JSON.stringify(data) }, token);
 
 // Contact
-export const submitContact = (data: ContactData) => fetchAPI('/api/contact', { method: 'POST', body: JSON.stringify(data) });
+export const submitContact = (data: any) => fetchAPI('api/contact/', { method: 'POST', body: JSON.stringify(data) });

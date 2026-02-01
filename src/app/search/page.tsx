@@ -18,9 +18,12 @@ export default function SearchPage() {
     }, []);
 
     const filteredNews = useMemo(() => {
+        if (!searchTerm) {
+            return news;
+        }
         return news.filter(item =>
             item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.description.toLowerCase().includes(searchTerm.toLowerCase())
+            item.summary.toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [searchTerm, news]);
 
@@ -37,7 +40,7 @@ export default function SearchPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredNews.map((item) => (
-                    <NewsCard key={item.id} {...item} />
+                    <NewsCard key={item.id} article={item} />
                 ))}
             </div>
         </div>
