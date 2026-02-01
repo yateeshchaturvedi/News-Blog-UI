@@ -1,29 +1,34 @@
 export interface NewsArticle {
     id: string;
     title: string;
-    description: string;
-    image: string;
-    category: string;
-    date: string;
+    summary: string;
+    full_content: string;
+    imageUrl: string;
+    category: string; // Holds the category ID from the API
+    category_name?: string; // Will be populated with the category name
+    created_at: string;
+    updated_at: string;
 }
 
 export interface Blog {
     id: string;
     title: string;
-    description: string;
-    image: string;
-    category: string;
-    date: string;
+    content: string;
+    author: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface Category {
-    id: string;
+    id: number;
     name: string;
 }
 
 export interface Advertisement {
     id: string;
-    title: string;
-    image: string;
+    company: string;
+    imageUrl: string;
     link: string;
+    createdAt: string;
+    updatedAt: string;
 }

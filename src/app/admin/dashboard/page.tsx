@@ -1,8 +1,8 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-export default function AdminDashboard() {
-  const cookieStore = cookies();
+export default async function AdminDashboard() {
+  const cookieStore = await cookies();
   const token = cookieStore.get('token')?.value;
 
   if (!token) {

@@ -17,7 +17,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                 <div className="absolute bottom-0 left-0 p-12">
                      <span className="text-white bg-blue-500 px-3 py-1 rounded-full text-sm font-semibold">{news.category}</span>
                     <h1 className="text-5xl font-extrabold text-white mt-4 leading-tight">{news.title}</h1>
-                    <p className="text-gray-300 mt-2">Published on {news.date}</p>
+                    <p className="text-gray-300 mt-2">Published on {news.createdAt}</p>
                 </div>
             </div>
             <div className="p-12">
