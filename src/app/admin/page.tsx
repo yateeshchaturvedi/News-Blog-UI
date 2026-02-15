@@ -1,92 +1,105 @@
 'use client'
 
-import { useActionState } from "react";
-import { adminLogin, FormState } from "@/app/actions";
+import { useActionState } from 'react';
+import { useFormStatus } from "react-dom";
+import { login, FormState } from "@/app/actions";
+import { Lock, User, LogIn, AlertCircle, LoaderCircle } from 'lucide-react';
+import Link from 'next/link';
 
 const initialState: FormState = {
   message: "",
 };
 
+function SubmitButton() {
+    const { pending } = useFormStatus();
+
+    return (
+        <button
+            type="submit"
+            disabled={pending}
+            className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-transform transform hover:scale-105"
+        >
+            {pending ? (
+                <>
+                    <LoaderCircle className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
+                    Signing In...
+                </>
+            ) : (
+                <>
+                    <LogIn className="-ml-1 mr-2 h-5 w-5" />
+                    Sign in
+                </>
+            )}
+        </button>
+    );
+}
+
 export default function AdminLoginPage() {
-  const [state, formAction] = useActionState(adminLogin, initialState);
+  const [state, formAction] = useActionState(login, initialState);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-            Admin Portal
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            Sign in to manage your content
-          </p>
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 opacity-20 dark:opacity-30"></div>
+        <div className="relative max-w-md w-full space-y-8 bg-white dark:bg-gray-800/80 backdrop-blur-sm p-10 rounded-2xl shadow-2xl">
+            <div className="text-center">
+                 <Link href="/" className="inline-block mb-6">
+                    <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
+                        NewsHub Admin
+                    </h1>
+                </Link>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    Access Your Dashboard
+                </h2>
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                    Enter your credentials to continue
+                </p>
+            </div>
+
+            <form className="mt-8 space-y-6" action={formAction}>
+                 {state.message && (
+                    <div className={`flex items-center gap-x-3 rounded-md p-3 text-sm ${state.errors ? 'bg-red-100/80 text-red-800 dark:bg-red-900/40 dark:text-red-200' : 'bg-green-100/80 text-green-800 dark:bg-green-900/40 dark:text-green-200'}`}>
+                         <AlertCircle className="h-5 w-5"/>
+                        <p className="font-medium">{state.message}</p>
+                    </div>
+                )}
+
+                <div className="space-y-4">
+                    <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <User className="h-5 w-5 text-gray-400" />
+                        </div>
+                        <input
+                            id="username"
+                            name="username"
+                            type="text"
+                            required
+                            className="appearance-none block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-900 dark:text-white"
+                            placeholder="Username"
+                        />
+                         {state.errors?.username && <p className="text-red-500 text-xs mt-1 ml-1">{state.errors.username[0]}</p>}
+                    </div>
+                    <div className="relative">
+                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Lock className="h-5 w-5 text-gray-400" />
+                        </div>
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            autoComplete="current-password"
+                            required
+                            className="appearance-none block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-900 dark:text-white"
+                            placeholder="Password"
+                        />
+                        {state.errors?.password && <p className="text-red-500 text-xs mt-1 ml-1">{state.errors.password[0]}</p>}
+                    </div>
+                </div>
+
+                <div className="pt-2">
+                    <SubmitButton />
+                </div>
+            </form>
         </div>
-        <form className="mt-8 space-y-6" action={formAction}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="username" className="sr-only">
-                Username
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Username"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-              />
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Sign in
-            </button>
-          </div>
-
-          {state.message && (
-            <p className={`text-sm ${state.errors ? 'text-red-500' : 'text-green-500'} text-center`}>
-              {state.message}
-            </p>
-          )}
-
-          {state.errors?.username &&
-            state.errors.username.map((error) => (
-              <p className="text-sm text-red-500" key={error}>
-                {error}
-              </p>
-            ))}
-          {state.errors?.password &&
-            state.errors.password.map((error) => (
-              <p className="text-sm text-red-500" key={error}>
-                {error}
-              </p>
-            ))}
-          {state.errors?.api &&
-            state.errors.api.map((error) => (
-              <p className="text-sm text-red-500" key={error}>
-                {error}
-              </p>
-            ))}
-        </form>
-      </div>
     </div>
   );
 }

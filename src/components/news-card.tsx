@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { NewsArticle } from "@/lib/types";
 
 export default function NewsCard({ article }: { article: NewsArticle }) {
@@ -11,10 +12,12 @@ export default function NewsCard({ article }: { article: NewsArticle }) {
         <Link href={`/news/${categoryUrl}/${article.id}`} className="block group">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden h-full flex flex-col">
                 <div className="relative h-48 w-full">
-                    <img 
+                    <Image 
                         src={article.imageUrl || placeholderImage} 
                         alt={article.title} 
-                        className="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
+                        layout="fill"
+                        objectFit="cover"
+                        className="transition-transform duration-300 ease-in-out group-hover:scale-105"
                     />
                 </div>
                 <div className="p-4 flex-grow flex flex-col">

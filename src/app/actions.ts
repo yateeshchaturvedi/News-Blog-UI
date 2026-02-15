@@ -1,111 +1,158 @@
-'use server';
+'use server'
 
 import { z } from 'zod';
-import { login, submitContact } from "@/lib/api";
-import { cookies } from 'next/headers';
+import { loginUser } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
+import { createNewsArticle, updateNewsArticle, submitContact } from '@/lib/api';
+import { cookies } from 'next/headers';
 
-const contactSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email address'),
-  message: z.string().min(1, 'Message is required'),
+const FormSchema = z.object({
+    title: z.string(),
+    content: z.string(),
+    author: z.string(),
+    category: z.string(),
 });
 
-const loginSchema = z.object({
-  username: z.string().min(1, 'Username is required'),
-  password: z.string().min(1, 'Password is required'),
+const ContactFormSchema = z.object({
+    name: z.string(),
+    email: z.string().email(),
+    message: z.string(),
 });
 
-export interface FormState {
-  message: string;
-  errors?: {
-    name?: string[];
-    email?: string[];
-    message?: string[];
-    api?: string[];
-    username?: string[];
-    password?: string[];
-  };
-}
-
-export async function submitContactForm(
-  prevState: FormState,
-  formData: FormData
-): Promise<FormState> {
-  const rawFormData = {
-    name: formData.get('name') as string,
-    email: formData.get('email') as string,
-    message: formData.get('message') as string,
-  };
-
-  const validatedFields = contactSchema.safeParse(rawFormData);
-
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Please correct the errors and try again.',
+export type FormState = {
+    message: string;
+    errors?: {
+        title?: string[];
+        content?: string[];
+        author?: string[];
+        category?: string[];
+        name?: string[];
+        email?: string[];
+        message?: string[];
+        username?: string[];
+        password?: string[];
     };
-  }
+    success?: boolean;
+};
 
-  try {
-    const response = await submitContact(rawFormData);
-    return { message: response.message || 'Thank you for your message!' };
-  } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'An unexpected error occurred.';
-    return {
-      message: 'An unexpected error occurred. Please try again later.',
-      errors: { api: [errorMessage] },
-    };
-  }
-}
+export async function login(prevState: FormState, formData: FormData) {
+    const username = formData.get('username') as string;
+    const password = formData.get('password') as string;
 
-export async function adminLogin(
-  prevState: FormState,
-  formData: FormData
-): Promise<FormState> {
-  const validatedFields = loginSchema.safeParse({
-    username: formData.get('username'),
-    password: formData.get('password'),
-  });
+    if (!username || !password) {
+        return { message: 'Username and password are required' };
+    }
 
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Please correct the errors and try again.',
-    };
-  }
+    const result = await loginUser(username, password);
 
-  let response;
-  try {
-    const { username, password } = validatedFields.data;
-    response = await login({ username, password });
-  } catch (error: any) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'An unexpected error occurred.';
-    return {
-      message: 'Invalid username or password',
-      errors: { api: [errorMessage] },
-    };
-  }
-
-  if (response && response.token) {
-    const cookieStore = await cookies(); // ✅ FIX
-    cookieStore.set('token', response.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-    });
-
-    redirect('/admin/dashboard'); // ❗ must be last
-  }
-
-  return { message: 'Login failed: No token received.' };
+    if (result.success && result.token) {
+        // The Next.js cookies() function in Server Actions is asynchronous.
+        // We must await it to get the cookie store before we can modify it.
+        const cookieStore = await cookies();
+        await cookieStore.set('token', result.token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 24 * 7, // 1 week
+            path: '/',
+        });
+        redirect('/admin/dashboard');
+    } else {
+        return { message: result.error || 'Invalid credentials' };
+    }
 }
 
 export async function logout() {
-  const cookieStore = await cookies(); // ✅ FIX
-  cookieStore.delete('token');
-  redirect('/admin');
+    const cookieStore = await cookies();
+    await cookieStore.delete('token');
+    redirect('/admin');
+}
+
+export async function createArticle(prevState: FormState, formData: FormData): Promise<FormState> {
+    const token = formData.get('token') as string;
+
+    if (!token) {
+        return { message: 'Authentication failed. Please log in again.' };
+    }
+
+    const validatedFields = FormSchema.safeParse({
+        title: formData.get('title'),
+        content: formData.get('content'),
+        author: formData.get('author'),
+        category: formData.get('category'),
+    });
+
+    if (!validatedFields.success) {
+        return {
+            message: 'Validation failed',
+            errors: validatedFields.error.flatten().fieldErrors,
+        };
+    }
+
+    const { title, content, author, category } = validatedFields.data;
+
+    try {
+        await createNewsArticle({ title, content, author, category }, token);
+        revalidatePath('/admin/dashboard/news');
+        return { message: 'Article created successfully', success: true };
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        return { message: `Failed to create article: ${errorMessage}` };
+    }
+}
+
+export async function updateArticle(id: number, prevState: FormState, formData: FormData): Promise<FormState> {
+    const token = formData.get('token') as string;
+    if (!token) {
+        return { message: 'Authentication failed. Please log in again.' };
+    }
+    const validatedFields = FormSchema.safeParse({
+        title: formData.get('title'),
+        content: formData.get('content'),
+        author: formData.get('author'),
+        category: formData.get('category'),
+    });
+
+    if (!validatedFields.success) {
+        return {
+            message: 'Validation failed',
+            errors: validatedFields.error.flatten().fieldErrors,
+        };
+    }
+
+    const { title, content, category } = validatedFields.data;
+
+    try {
+        await updateNewsArticle(id, { title, content, category }, token);
+        revalidatePath('/admin/dashboard/news');
+        return { message: 'Article updated successfully', success: true };
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        return { message: `Failed to update article: ${errorMessage}` };
+    }
+}
+
+export async function submitContactForm(prevState: FormState, formData: FormData): Promise<FormState> {
+    const validatedFields = ContactFormSchema.safeParse({
+        name: formData.get('name'),
+        email: formData.get('email'),
+        message: formData.get('message'),
+    });
+
+    if (!validatedFields.success) {
+        return {
+            message: 'Validation failed',
+            errors: validatedFields.error.flatten().fieldErrors,
+        };
+    }
+
+    const { name, email, message } = validatedFields.data;
+
+    try {
+        await submitContact({ name, email, message });
+        return { message: 'Your message has been sent successfully!', success: true };
+    } catch (error) {
+        console.error(error);
+        return { message: 'Failed to send message' };
+    }
 }

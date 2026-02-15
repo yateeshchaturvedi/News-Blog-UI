@@ -21,7 +21,7 @@ This project is a modern, responsive news blog website built with Next.js and Ta
 *   **Contact Page:** A functional contact form with validation and server-side submission handling.
 *   **Admin Login:** A secure login page for administrators.
 
-## Current Plan: Test the Application
+## Completed Plan: Test the Application
 
 ### 1. Purpose
 To thoroughly test the application to ensure all features are working as expected after the integration with the Express.js backend API.

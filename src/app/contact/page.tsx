@@ -1,12 +1,13 @@
 'use client'
 
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, LoaderCircle, PartyPopper, AlertCircle } from 'lucide-react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { submitContactForm } from '@/app/actions';
 
 // Define the shape of the form state
 interface FormState {
   message: string;
+  success: boolean;
   errors?: {
     name?: string[];
     email?: string[];
@@ -16,6 +17,7 @@ interface FormState {
 
 const initialState: FormState = {
     message: '',
+    success: false,
     errors: {},
 };
 
@@ -23,8 +25,22 @@ function SubmitButton() {
     const { pending } = useFormStatus();
 
     return (
-        <button type="submit" disabled={pending} className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-md transition-colors disabled:bg-gray-400">
-            {pending ? 'Sending...' : 'Send Message'}
+        <button 
+            type="submit" 
+            disabled={pending} 
+            className="w-full flex items-center justify-center bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-6 rounded-lg transition-all duration-300 ease-in-out shadow-lg hover:shadow-xl disabled:bg-gray-400 disabled:from-gray-400 disabled:to-gray-500 transform hover:scale-105 disabled:transform-none"
+        >
+            {pending ? (
+                <>
+                    <LoaderCircle className="animate-spin mr-3 h-5 w-5" />
+                    <span>Sending...</span>
+                </>
+            ) : (
+                <>
+                    <Send className="mr-3 h-5 w-5" />
+                    <span>Send Message</span>
+                </>
+            )}
         </button>
     );
 }
@@ -32,49 +48,79 @@ function SubmitButton() {
 export default function ContactPage() {
     const [state, formAction] = useFormState(submitContactForm, initialState);
 
+    const contactInfo = [
+        { icon: Mail, text: 'contact@newshub.com', href: 'mailto:contact@newshub.com' },
+        { icon: Phone, text: '+1 (555) 123-4567', href: 'tel:+15551234567' },
+        { icon: MapPin, text: '123 News Street, New York, NY', href: '#' },
+    ];
+
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div>
-                <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-6">Get in Touch</h2>
-                <p className="text-gray-600 dark:text-gray-300 mb-8">
-                    Have a question or a story to share? We&apos;d love to hear from you. 
-                    Fill out the form and we&apos;ll get back to you as soon as possible.
-                </p>
-                <div className="space-y-6">
-                    <div className="flex items-center space-x-4">
-                        <Mail className="h-6 w-6 text-blue-500" />
-                        <span className="text-gray-600 dark:text-gray-300">contact@newshub.com</span>
+        <div className="bg-gray-50 dark:bg-gray-900 py-16 sm:py-24">
+            <div className="mx-auto max-w-7xl px-6 lg:px-8">
+                <div className="text-center">
+                    <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl">Contact Us</h1>
+                    <p className="mt-4 text-lg leading-6 text-gray-600 dark:text-gray-300">We&apos;d love to hear from you. Let us know how we can help.</p>
+                </div>
+
+                <div className="mt-16 grid grid-cols-1 lg:grid-cols-3 gap-12">
+                    {/* Contact Info Section */}
+                    <div className="flex flex-col space-y-8">
+                        <h2 className="text-3xl font-bold text-gray-800 dark:text-white">Get in Touch</h2>
+                        {contactInfo.map((item, index) => (
+                            <a key={index} href={item.href} className="flex items-start space-x-5 p-4 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-800/50">
+                                <div className="flex-shrink-0">
+                                    <div className="bg-blue-100 dark:bg-blue-900/40 p-3 rounded-full">
+                                        <item.icon className="h-7 w-7 text-blue-600 dark:text-blue-400" />
+                                    </div>
+                                </div>
+                                <div className="pt-1.5">
+                                    <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">{item.text}</p>
+                                </div>
+                            </a>
+                        ))}
                     </div>
-                    <div className="flex items-center space-x-4">
-                        <Phone className="h-6 w-6 text-blue-500" />
-                        <span className="text-gray-600 dark:text-gray-300">+1 (555) 123-4567</span>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                        <MapPin className="h-6 w-6 text-blue-500" />
-                        <span className="text-gray-600 dark:text-gray-300">123 News Street, New York, NY 10001</span>
+
+                    {/* Form Section */}
+                    <div className="lg:col-span-2">
+                        <div className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-2xl p-8">
+                            <form action={formAction} className="space-y-6">
+                                {state.message && (
+                                    <div className={`flex items-center gap-x-3 rounded-md p-4 text-sm ${state.success ? 'bg-green-100/70 text-green-800 dark:bg-green-900/40 dark:text-green-200' : 'bg-red-100/70 text-red-800 dark:bg-red-900/40 dark:text-red-200'}`}>
+                                        {state.success ? <PartyPopper className="h-5 w-5"/> : <AlertCircle className="h-5 w-5"/>}
+                                        <p className="font-medium">{state.message}</p>
+                                    </div>
+                                )}
+
+                                <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8">
+                                    <div>
+                                        <label htmlFor="name" className="block text-sm font-semibold leading-6 text-gray-900 dark:text-gray-200">Your Name</label>
+                                        <div className="mt-2.5">
+                                            <input type="text" id="name" name="name" className="block w-full rounded-md border-0 bg-white/5 px-3.5 py-2 text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 transition" />
+                                            {state.errors?.name && <p className="text-red-500 text-sm mt-2">{state.errors.name[0]}</p>}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label htmlFor="email" className="block text-sm font-semibold leading-6 text-gray-900 dark:text-gray-200">Your Email</label>
+                                        <div className="mt-2.5">
+                                            <input type="email" id="email" name="email" className="block w-full rounded-md border-0 bg-white/5 px-3.5 py-2 text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 transition" />
+                                            {state.errors?.email && <p className="text-red-500 text-sm mt-2">{state.errors.email[0]}</p>}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label htmlFor="message" className="block text-sm font-semibold leading-6 text-gray-900 dark:text-gray-200">Message</label>
+                                    <div className="mt-2.5">
+                                        <textarea id="message" name="message" rows={5} className="block w-full rounded-md border-0 bg-white/5 px-3.5 py-2 text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 transition"></textarea>
+                                        {state.errors?.message && <p className="text-red-500 text-sm mt-2">{state.errors.message[0]}</p>}
+                                    </div>
+                                </div>
+                                <div className="pt-4">
+                                    <SubmitButton />
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div>
-                <form action={formAction} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
-                    {state.message && <p className={`mb-4 ${state.errors ? 'text-red-500' : 'text-green-500'}`}>{state.message}</p>}
-                    <div className="mb-6">
-                        <label htmlFor="name" className="block text-gray-700 dark:text-gray-300 font-semibold mb-2">Your Name</label>
-                        <input type="text" id="name" name="name" className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                        {state.errors?.name && <p className="text-red-500 text-sm mt-1">{state.errors.name[0]}</p>}
-                    </div>
-                    <div className="mb-6">
-                        <label htmlFor="email" className="block text-gray-700 dark:text-gray-300 font-semibold mb-2">Your Email</label>
-                        <input type="email" id="email" name="email" className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                         {state.errors?.email && <p className="text-red-500 text-sm mt-1">{state.errors.email[0]}</p>}
-                    </div>
-                    <div className="mb-6">
-                        <label htmlFor="message" className="block text-gray-700 dark:text-gray-300 font-semibold mb-2">Message</label>
-                        <textarea id="message" name="message" rows={5} className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                         {state.errors?.message && <p className="text-red-500 text-sm mt-1">{state.errors.message[0]}</p>}
-                    </div>
-                    <SubmitButton />
-                </form>
             </div>
         </div>
     );

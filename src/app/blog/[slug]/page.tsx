@@ -1,7 +1,9 @@
 import { latestNews, trendingNews } from "@/lib/placeholder";
 import Image from "next/image";
+import { use } from 'react';
 
-export default function BlogPostPage({ params }: { params: { slug: string } }) {
+export default function BlogPostPage({ params: paramsPromise }: { params: Promise<{ slug: string }> }) {
+    const params = use(paramsPromise);
     const allNews = [...trendingNews, ...latestNews];
     const news = allNews.find(p => p.href === `/blog/${params.slug}`);
 
