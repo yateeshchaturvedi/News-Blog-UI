@@ -3,33 +3,57 @@ import { NewsArticle, Blog, Category } from '@/lib/types';
 const API_BASE_URL = 'https://news-blog-api-mzxq.onrender.com/';
 
 interface ApiArticle {
-    id: number;
+    id: number | string;
     title: string;
-    author: string;
+    author?: string;
+    created_by?: string;
+    createdBy?: string;
+    userId?: string;
+    author_name?: string;
+    authorName?: string;
+    user?: {
+        name?: string;
+        username?: string;
+    };
+    username?: string;
     content: string;
     imageUrl: string;
+    image_path?: string;
+    imagePath?: string;
     created_at: string;
     updated_at: string;
-    category_id: string | null;
+    status?: string;
+    user_id?: number;
+    category_id: number | null;
 }
 
 async function fetchAPI(endpoint: string, options: RequestInit = {}, token?: string) {
     const url = `${API_BASE_URL}${endpoint}`;
     const headers: Record<string, string> = { ...options.headers as Record<string, string> };
     if (options.body) headers['Content-Type'] = 'application/json';
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    if (token) {
+        const normalizedToken = token.startsWith('Bearer ') ? token.slice(7) : token;
+        headers['Authorization'] = `Bearer ${normalizedToken}`;
+        headers['x-auth-token'] = normalizedToken;
+    }
 
     const response = await fetch(url, { ...options, headers });
 
     if (!response.ok) {
-        let errorBody;
+        const rawBody = await response.text();
+        let errorBody: Record<string, unknown> | null = null;
         try {
-            errorBody = await response.json();
+            errorBody = rawBody ? JSON.parse(rawBody) : null;
         } catch {
-            errorBody = { msg: response.statusText };
+            errorBody = null;
         }
-        console.error('API Error:', errorBody);
-        throw new Error(errorBody.msg || `API call failed: ${response.statusText}`);
+        const errorMessage =
+            (errorBody?.msg as string) ||
+            (errorBody?.message as string) ||
+            (rawBody || '').trim() ||
+            `API call failed: ${response.status} ${response.statusText}`;
+        console.error('API Error:', { status: response.status, statusText: response.statusText, body: rawBody });
+        throw new Error(errorMessage);
     }
 
     const contentType = response.headers.get('content-type');
@@ -54,17 +78,30 @@ export const getNews = async (token?: string): Promise<NewsArticle[]> => {
     if (!newsData || !Array.isArray(newsData)) return [];
 
     return newsData.map((article: ApiArticle) => {
-        const categoryId = article.category_id ? parseInt(article.category_id, 10) : null;
+        const categoryId = article.category_id ?? null;
         const category_name = categoryId ? categoryMap.get(categoryId) || 'general' : 'general';
+        const author =
+            article.author ||
+            article.author_name ||
+            article.authorName ||
+            article.created_by ||
+            article.createdBy ||
+            article.userId ||
+            article.user?.name ||
+            article.user?.username ||
+            article.username ||
+            (article.user_id ? `User #${article.user_id}` : 'Unknown');
 
         return {
             id: article.id.toString(),
             title: article.title,
-            author: article.author,
+            author,
             summary: article.content ? article.content.substring(0, 100) + '...' : '',
             content: article.content || '',
             full_content: article.content || '',
-            imageUrl: article.imageUrl || '',
+            imageUrl: article.imageUrl || article.image_path || article.imagePath || '',
+            status: article.status || 'PENDING',
+            user_id: article.user_id,
             publishedAt: article.created_at,
             category: article.category_id ? article.category_id.toString() : '',
             category_name: category_name,
@@ -74,10 +111,21 @@ export const getNews = async (token?: string): Promise<NewsArticle[]> => {
     });
 };
 
-export const getNewsArticle = async (id: number, token?: string): Promise<NewsArticle | undefined> => {
+export const getNewsArticle = async (id: string | number, token?: string): Promise<NewsArticle | undefined> => {
     try {
-        const article = await fetchAPI(`api/news/${id}/`, {}, token);
+        const article = await fetchAPI(`api/news/${encodeURIComponent(String(id))}/`, {}, token) as ApiArticle;
         if (!article) return undefined;
+        const author =
+            article.author ||
+            article.author_name ||
+            article.authorName ||
+            article.created_by ||
+            article.createdBy ||
+            article.userId ||
+            article.user?.name ||
+            article.user?.username ||
+            article.username ||
+            (article.user_id ? `User #${article.user_id}` : 'Unknown');
 
         let category_name = 'general';
         if (article.category_id) {
@@ -94,11 +142,13 @@ export const getNewsArticle = async (id: number, token?: string): Promise<NewsAr
         return {
             id: article.id.toString(),
             title: article.title,
-            author: article.author, // Add this line
+            author,
             summary: article.content ? article.content.substring(0, 100) + '...' : '',
             content: article.content || '', // Add this line
             full_content: article.content || '',
-            imageUrl: article.imageUrl || '',
+            imageUrl: article.imageUrl || article.image_path || article.imagePath || '',
+            status: article.status || 'PENDING',
+            user_id: article.user_id,
             publishedAt: article.created_at, // Add this line
             category: article.category_id ? article.category_id.toString() : '',
             category_name: category_name,
@@ -111,12 +161,41 @@ export const getNewsArticle = async (id: number, token?: string): Promise<NewsAr
     }
 };
 
-export const createNewsArticle = (data: Partial<NewsArticle>, token: string): Promise<NewsArticle> => {
-    return fetchAPI('api/news/', { method: 'POST', body: JSON.stringify(data) }, token);
+export const createNewsArticle = async (data: Partial<NewsArticle>, token: string): Promise<NewsArticle> => {
+    const payload: Record<string, unknown> = {
+        title: data.title,
+        content: data.content,
+        imagePath: data.imageUrl || null,
+        categoryId: Number(data.category),
+    };
+    return fetchAPI('api/news/', { method: 'POST', body: JSON.stringify(payload) }, token);
 };
 
-export const updateNewsArticle = (id: number, data: Partial<NewsArticle>, token: string): Promise<NewsArticle> => {
-    return fetchAPI(`api/news/${id}/`, { method: 'PUT', body: JSON.stringify(data) }, token);
+export const updateNewsArticle = (id: string | number, data: Partial<NewsArticle>, token: string): Promise<NewsArticle> => {
+    const payload: Record<string, unknown> = {
+        title: data.title,
+        content: data.content,
+        imagePath: data.imageUrl || null,
+        status: data.status || 'PENDING',
+    };
+    if (data.category) payload.categoryId = Number(data.category);
+    return fetchAPI(`api/news/${encodeURIComponent(String(id))}/`, { method: 'PUT', body: JSON.stringify(payload) }, token);
+};
+
+export const updateNewsStatusArticle = (
+    id: string | number,
+    status: 'PENDING' | 'APPROVED',
+    token: string
+): Promise<NewsArticle> => {
+    return fetchAPI(
+        `api/news/${encodeURIComponent(String(id))}/status`,
+        { method: 'PATCH', body: JSON.stringify({ status }) },
+        token
+    );
+};
+
+export const deleteNewsArticle = (id: string | number, token: string): Promise<void> => {
+    return fetchAPI(`api/news/${encodeURIComponent(String(id))}/`, { method: 'DELETE' }, token);
 };
 
 export const uploadImage = async (imageFile: File): Promise<string> => {
@@ -142,6 +221,16 @@ export const getBlogs = (token?: string): Promise<Blog[]> => fetchAPI('api/blogs
 // Auth
 export const register = (data: Record<string, unknown>) => fetchAPI('api/auth/register', { method: 'POST', body: JSON.stringify(data) });
 export const login = (data: Record<string, unknown>) => fetchAPI('api/auth/login', { method: 'POST', body: JSON.stringify(data) });
+export const createEditorAccount = (data: { username: string; password: string }) =>
+    fetchAPI('api/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({
+            ...data,
+            role: 'EDITOR',
+            roleId: 2,
+            role_id: 2,
+        }),
+    });
 
 // Categories
 export const getCategories = (token?: string): Promise<Category[]> => fetchAPI('api/categories/', {}, token);

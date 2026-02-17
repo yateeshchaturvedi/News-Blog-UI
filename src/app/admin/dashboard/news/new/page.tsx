@@ -4,7 +4,14 @@ import { jwtDecode } from 'jwt-decode';
 import NewsEditor from '@/components/NewsEditor';
 
 interface JwtPayload {
-    name: string;
+    name?: string;
+    username?: string;
+    sub?: string;
+    email?: string;
+    user?: {
+        name?: string;
+        username?: string;
+    };
 }
 
 export default async function NewNewsPage() {
@@ -18,7 +25,14 @@ export default async function NewNewsPage() {
     let authorName = 'Admin';
     try {
         const decodedToken = jwtDecode<JwtPayload>(token);
-        authorName = decodedToken.name;
+        authorName =
+            decodedToken.name ||
+            decodedToken.username ||
+            decodedToken.user?.name ||
+            decodedToken.user?.username ||
+            decodedToken.sub ||
+            decodedToken.email ||
+            'Admin';
     } catch (error) {
         console.error("Failed to decode token:", error);
         // If token is invalid, redirect to login

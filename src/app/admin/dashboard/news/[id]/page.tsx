@@ -1,8 +1,21 @@
 import { getNewsArticle } from '@/lib/api';
 import NewsEditor from '@/components/NewsEditor';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { use } from 'react';
 
-export default async function EditNewsPage({ params }: { params: { id: string } }) {
-    const article = await getNewsArticle(parseInt(params.id));
+export default function EditNewsPage({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
+    const params = use(paramsPromise);
+
+    return <EditNewsPageContent id={params.id} />;
+}
+
+async function EditNewsPageContent({ id }: { id: string }) {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('token')?.value;
+    if (!token) redirect('/admin');
+
+    const article = await getNewsArticle(id);
 
     if (!article) {
         return <div>Article not found</div>;
@@ -11,7 +24,7 @@ export default async function EditNewsPage({ params }: { params: { id: string } 
     return (
         <div>
             <h1 className="text-3xl font-bold mb-8">Edit Article</h1>
-            <NewsEditor article={article} />
+            <NewsEditor article={article} token={token} />
         </div>
     );
 }

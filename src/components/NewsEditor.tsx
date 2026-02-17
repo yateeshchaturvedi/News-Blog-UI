@@ -32,11 +32,12 @@ export default function NewsEditor({ article, authorName, token }: { article?: N
     const router = useRouter();
     const [isUpdating] = useState(!!article);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [selectedCategory, setSelectedCategory] = useState(article?.category ? String(article.category) : '');
     const [isLoadingCategories, setIsLoadingCategories] = useState(true);
     const [categoryError, setCategoryError] = useState<string | null>(null);
 
     const [formState, formAction] = useActionState(
-        isUpdating ? updateArticle.bind(null, article!.id) : createArticle,
+        isUpdating ? updateArticle.bind(null, String(article!.id)) : createArticle,
         initialState
     );
 
@@ -51,6 +52,7 @@ export default function NewsEditor({ article, authorName, token }: { article?: N
                 const fetchedCategories = await getCategories(token);
                 console.log('Fetched categories:', fetchedCategories);
                 setCategories(fetchedCategories);
+                setSelectedCategory((prev) => prev || (fetchedCategories.length > 0 ? String(fetchedCategories[0].id) : ''));
             } catch (error) {
                 console.error("Failed to fetch categories:", error);
                 setCategoryError(error instanceof Error ? error.message : "An unknown error occurred.");
@@ -68,11 +70,14 @@ export default function NewsEditor({ article, authorName, token }: { article?: N
         }
     }, [formState, router]);
 
-    const finalAuthorName = article?.author || authorName;
+    const finalAuthorName = article?.author || authorName || 'Admin';
 
     return (
         <form action={formAction}>
             <input type="hidden" name="token" value={token || ''} />
+            <input type="hidden" name="category" value={selectedCategory} />
+            <input type="hidden" name="status" value={article?.status || 'PENDING'} />
+            <input type="hidden" name="currentImagePath" value={article?.imageUrl || ''} />
              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="md:col-span-2 space-y-6">
                     <Card>
@@ -87,7 +92,7 @@ export default function NewsEditor({ article, authorName, token }: { article?: N
                             </div>
                              <div>
                                 <Label htmlFor="category">Category</Label>
-                                 <Select name="category" defaultValue={article?.category}>
+                                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                                      <SelectTrigger>
                                          <SelectValue placeholder={isLoadingCategories ? "Loading categories..." : "Select a category"} />
                                      </SelectTrigger>
@@ -126,7 +131,15 @@ export default function NewsEditor({ article, authorName, token }: { article?: N
                             <CardTitle>Image</CardTitle>
                         </CardHeader>
                         <CardContent>
-                             <Input id="image" name="image" type="file" />
+                             <Input id="imageFile" name="imageFile" type="file" accept="image/*" />
+                             <p className="mt-2 text-xs text-slate-500">
+                                Uploaded files are stored in <code>public/news-images</code> and saved as image path.
+                             </p>
+                             {article?.imageUrl && (
+                                <p className="mt-2 text-xs text-slate-600">
+                                    Current image: <code>{article.imageUrl}</code>
+                                </p>
+                             )}
                         </CardContent>
                     </Card>
                 </div>

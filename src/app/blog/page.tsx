@@ -18,10 +18,12 @@ export default async function BlogPage() {
     }));
 
     return (
-        <div>
-            <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-4">NewsHub Blog</h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">Explore the latest articles and stay informed.</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="space-y-8">
+            <div className="animate-fade-up rounded-2xl border border-blue-100 bg-white/85 p-6 shadow-sm">
+                <h1 className="text-4xl font-semibold text-slate-900">NewsHub Blog</h1>
+                <p className="mt-3 text-lg text-slate-600">Insights, editorials, and behind-the-headlines perspective.</p>
+            </div>
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
                 {articles.map((article: NewsArticle) => (
                     <NewsCard key={article.id} article={article} />
                 ))}

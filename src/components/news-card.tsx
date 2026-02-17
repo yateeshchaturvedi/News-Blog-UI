@@ -7,25 +7,29 @@ export default function NewsCard({ article }: { article: NewsArticle }) {
 
     const category = article.category_name || 'general';
     const categoryUrl = article.category_name ? article.category_name.toLowerCase() : 'uncategorized';
+    const createdDate = article.created_at ?? article.createdAt ?? article.publishedAt;
 
     return (
-        <Link href={`/news/${categoryUrl}/${article.id}`} className="block group">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden h-full flex flex-col">
-                <div className="relative h-48 w-full">
+        <Link href={`/news/${categoryUrl}/${article.id}`} className="group block animate-fade-up">
+            <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-blue-100/80 bg-white/95 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+                <div className="relative h-52 w-full overflow-hidden">
                     <Image 
                         src={article.imageUrl || placeholderImage} 
                         alt={article.title} 
-                        layout="fill"
-                        objectFit="cover"
-                        className="transition-transform duration-300 ease-in-out group-hover:scale-105"
+                        fill
+                        className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/45 via-transparent to-transparent" />
+                    <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold tracking-wide text-slate-700">
+                        {category}
+                    </span>
                 </div>
-                <div className="p-4 flex-grow flex flex-col">
-                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white group-hover:text-blue-500 transition-colors duration-300 mb-2 truncate">{article.title}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 flex-grow">{article.summary}</p>
-                    <div className="mt-4 flex items-center justify-between">
-                        <span className="text-xs text-gray-500 dark:text-gray-400">{new Date(article.created_at).toLocaleDateString()}</span>
-                        <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full dark:bg-blue-900 dark:text-blue-200 capitalize">{category}</span>
+                <div className="flex flex-grow flex-col p-5">
+                    <h3 className="mb-2 line-clamp-2 text-xl font-semibold text-slate-900 transition-colors group-hover:text-blue-700">{article.title}</h3>
+                    <p className="flex-grow text-sm leading-6 text-slate-600">{article.summary ?? ''}</p>
+                    <div className="mt-5 flex items-center justify-between border-t border-blue-50 pt-3">
+                        <span className="text-xs font-medium text-slate-500">{createdDate ? new Date(createdDate).toLocaleDateString() : 'N/A'}</span>
+                        <span className="text-xs font-semibold text-blue-700 transition-transform group-hover:translate-x-0.5">Read story</span>
                     </div>
                 </div>
             </div>

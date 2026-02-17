@@ -2,30 +2,37 @@ import NewsCard from '@/components/news-card';
 import { getEnrichedNews } from './news/utils';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
   const latestNews = await getEnrichedNews();
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">Latest News</h1>
+    <div className="space-y-12">
+      <section className="relative overflow-hidden rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 via-sky-50 to-white p-8 md:p-12">
+        <div className="max-w-2xl animate-fade-up">
+          <p className="mb-3 inline-flex rounded-full border border-blue-200 bg-white/80 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">Global Briefing</p>
+          <h1 className="text-4xl font-semibold leading-tight text-slate-900 md:text-5xl">Latest News</h1>
+          <p className="mt-4 text-base leading-7 text-slate-600 md:text-lg">A fast, clean stream of what matters most right now. Fresh reporting, fewer distractions.</p>
+          <div className="mt-6">
+            <Link href="/news" className="animate-soft-pulse inline-flex items-center rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow transition-all hover:bg-blue-700">
+              View All News
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {latestNews.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <section className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {latestNews.slice(0, 5).map((article) => (
             <NewsCard key={article.id} article={article} />
           ))}
-        </div>
+        </section>
       ) : (
-        <div className="text-center text-gray-500 dark:text-gray-400 py-10">
+        <div className="rounded-2xl border border-blue-100 bg-white/85 py-14 text-center text-slate-500 shadow-sm">
           <p>No news articles were found.</p>
         </div>
       )}
-
-      <div className="mt-12 text-center">
-        <Link href="/news" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full transition duration-300">
-          View All News
-        </Link>
-      </div>
     </div>
   );
 }

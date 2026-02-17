@@ -17,7 +17,7 @@ async function ArticleDetail({ articleId }: { articleId: string }) {
     let error = null;
 
     try {
-      article = await getNewsArticle(parseInt(articleId, 10));
+      article = await getNewsArticle(articleId);
     } catch (e: unknown) {
       error = e instanceof Error ? e.message : "An unexpected error occurred.";
     }
@@ -31,6 +31,8 @@ async function ArticleDetail({ articleId }: { articleId: string }) {
     }
 
     const displayCategory = article.category_name ? capitalize(article.category_name) : 'Category';
+    const publishedDate = article.created_at ?? article.createdAt ?? article.publishedAt;
+    const articleContent = article.full_content ?? article.content ?? '';
 
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -42,10 +44,10 @@ async function ArticleDetail({ articleId }: { articleId: string }) {
         <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">{article.title}</h1>
         <p className="text-lg text-gray-600 dark:text-gray-300 mb-2">{displayCategory}</p>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
-          Published on: {new Date(article.created_at).toLocaleDateString()}
+          Published on: {publishedDate ? new Date(publishedDate).toLocaleDateString() : 'N/A'}
         </p>
         {article.imageUrl && <Image src={article.imageUrl} alt={article.title} width={800} height={400} className="w-full h-auto object-cover rounded-lg mb-8" />}
-        <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: article.full_content }}></div>
+        <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: articleContent }}></div>
       </div>
     );
 }
@@ -57,7 +59,10 @@ async function CategoryList({ categoryName }: { categoryName: string }) {
     try {
       const allNews = await getNews();
       articles = allNews.filter(
-        article => article.category_name && article.category_name.toLowerCase() === categoryName.toLowerCase()
+        article =>
+          article.category_name &&
+          article.category_name.toLowerCase() === categoryName.toLowerCase() &&
+          (article.status || '').trim().toUpperCase() === 'APPROVED'
       );
     } catch (e: unknown) {
       error = e instanceof Error ? e.message : "An unexpected error occurred.";

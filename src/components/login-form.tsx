@@ -2,7 +2,7 @@
 
 import { useFormStatus } from 'react-dom';
 import { useState } from 'react';
-import { adminLogin, FormState } from '@/app/actions';
+import { login, FormState } from '@/app/actions';
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -22,7 +22,7 @@ export default function LoginForm() {
     const [state, setState] = useState<FormState>({ message: '' });
 
     const formAction = async (formData: FormData) => {
-        const result = await adminLogin(state, formData);
+        const result = await login(state, formData);
         setState(result);
     };
 

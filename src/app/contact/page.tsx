@@ -55,26 +55,26 @@ export default function ContactPage() {
     ];
 
     return (
-        <div className="bg-gray-50 dark:bg-gray-900 py-16 sm:py-24">
+        <div className="rounded-3xl border border-blue-100 bg-white/85 py-12 shadow-sm sm:py-16">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
                 <div className="text-center">
-                    <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl">Contact Us</h1>
-                    <p className="mt-4 text-lg leading-6 text-gray-600 dark:text-gray-300">We&apos;d love to hear from you. Let us know how we can help.</p>
+                    <h1 className="text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">Contact Us</h1>
+                    <p className="mt-4 text-lg leading-6 text-slate-600">We&apos;d love to hear from you. Let us know how we can help.</p>
                 </div>
 
                 <div className="mt-16 grid grid-cols-1 lg:grid-cols-3 gap-12">
                     {/* Contact Info Section */}
                     <div className="flex flex-col space-y-8">
-                        <h2 className="text-3xl font-bold text-gray-800 dark:text-white">Get in Touch</h2>
+                        <h2 className="text-3xl font-semibold text-slate-900">Get in Touch</h2>
                         {contactInfo.map((item, index) => (
-                            <a key={index} href={item.href} className="flex items-start space-x-5 p-4 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-800/50">
+                            <a key={index} href={item.href} className="flex items-start space-x-5 rounded-lg p-4 transition-colors hover:bg-blue-50/70">
                                 <div className="flex-shrink-0">
-                                    <div className="bg-blue-100 dark:bg-blue-900/40 p-3 rounded-full">
-                                        <item.icon className="h-7 w-7 text-blue-600 dark:text-blue-400" />
+                                    <div className="rounded-full bg-blue-100 p-3">
+                                        <item.icon className="h-7 w-7 text-blue-700" />
                                     </div>
                                 </div>
                                 <div className="pt-1.5">
-                                    <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">{item.text}</p>
+                                    <p className="text-lg font-semibold text-slate-700">{item.text}</p>
                                 </div>
                             </a>
                         ))}
@@ -82,7 +82,7 @@ export default function ContactPage() {
 
                     {/* Form Section */}
                     <div className="lg:col-span-2">
-                        <div className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-2xl p-8">
+                        <div className="rounded-2xl border border-blue-100 bg-white p-8 shadow-sm">
                             <form action={formAction} className="space-y-6">
                                 {state.message && (
                                     <div className={`flex items-center gap-x-3 rounded-md p-4 text-sm ${state.success ? 'bg-green-100/70 text-green-800 dark:bg-green-900/40 dark:text-green-200' : 'bg-red-100/70 text-red-800 dark:bg-red-900/40 dark:text-red-200'}`}>
@@ -93,24 +93,24 @@ export default function ContactPage() {
 
                                 <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8">
                                     <div>
-                                        <label htmlFor="name" className="block text-sm font-semibold leading-6 text-gray-900 dark:text-gray-200">Your Name</label>
+                                        <label htmlFor="name" className="block text-sm font-semibold leading-6 text-slate-900">Your Name</label>
                                         <div className="mt-2.5">
-                                            <input type="text" id="name" name="name" className="block w-full rounded-md border-0 bg-white/5 px-3.5 py-2 text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 transition" />
+                                            <input type="text" id="name" name="name" className="block w-full rounded-md border-0 bg-white px-3.5 py-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 transition" />
                                             {state.errors?.name && <p className="text-red-500 text-sm mt-2">{state.errors.name[0]}</p>}
                                         </div>
                                     </div>
                                     <div>
-                                        <label htmlFor="email" className="block text-sm font-semibold leading-6 text-gray-900 dark:text-gray-200">Your Email</label>
+                                        <label htmlFor="email" className="block text-sm font-semibold leading-6 text-slate-900">Your Email</label>
                                         <div className="mt-2.5">
-                                            <input type="email" id="email" name="email" className="block w-full rounded-md border-0 bg-white/5 px-3.5 py-2 text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 transition" />
+                                            <input type="email" id="email" name="email" className="block w-full rounded-md border-0 bg-white px-3.5 py-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 transition" />
                                             {state.errors?.email && <p className="text-red-500 text-sm mt-2">{state.errors.email[0]}</p>}
                                         </div>
                                     </div>
                                 </div>
                                 <div>
-                                    <label htmlFor="message" className="block text-sm font-semibold leading-6 text-gray-900 dark:text-gray-200">Message</label>
+                                    <label htmlFor="message" className="block text-sm font-semibold leading-6 text-slate-900">Message</label>
                                     <div className="mt-2.5">
-                                        <textarea id="message" name="message" rows={5} className="block w-full rounded-md border-0 bg-white/5 px-3.5 py-2 text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 transition"></textarea>
+                                        <textarea id="message" name="message" rows={5} className="block w-full rounded-md border-0 bg-white px-3.5 py-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 transition"></textarea>
                                         {state.errors?.message && <p className="text-red-500 text-sm mt-2">{state.errors.message[0]}</p>}
                                     </div>
                                 </div>

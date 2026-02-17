@@ -36,21 +36,21 @@ export default function SearchPage() {
     }, [searchTerm, news]);
 
     return (
-        <div className="container mx-auto px-4 py-12">
-            <div className="text-center mb-12">
-                <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white">Search for News</h1>
-                <p className="text-lg text-gray-500 dark:text-gray-400 mt-2">Find the articles that matter to you.</p>
+        <div className="py-8">
+            <div className="animate-fade-up mb-12 rounded-2xl border border-blue-100 bg-white/85 p-6 text-center shadow-sm">
+                <h1 className="text-4xl font-semibold text-slate-900">Search for News</h1>
+                <p className="mt-2 text-lg text-slate-600">Find the articles that matter to you.</p>
             </div>
 
-            <div className="mb-12 max-w-2xl mx-auto">
+            <div className="mx-auto mb-12 max-w-2xl">
                 <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <MagnifyingGlassIcon className="h-6 w-6 text-gray-400" />
+                        <MagnifyingGlassIcon className="h-6 w-6 text-slate-400" />
                     </div>
                     <input
                         type="text"
                         placeholder="Search by title or summary..."
-                        className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-full py-4 pl-12 pr-6 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-shadow shadow-md hover:shadow-lg"
+                        className="w-full rounded-full border border-blue-100 bg-white py-4 pl-12 pr-6 text-lg text-slate-800 shadow-sm transition-all hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-300"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -58,18 +58,18 @@ export default function SearchPage() {
             </div>
 
             {loading ? (
-                <div className="text-center text-gray-500 dark:text-gray-400">Loading articles...</div>
+                <div className="text-center text-slate-500">Loading articles...</div>
             ) : filteredNews.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
                     {filteredNews.map((item) => (
                         <NewsCard key={item.id} article={item} />
                     ))}
                 </div>
             ) : (
-                 <div className="text-center py-16">
-                    <MagnifyingGlassIcon className="mx-auto h-16 w-16 text-gray-400" />
-                    <h3 className="mt-4 text-2xl font-semibold text-gray-900 dark:text-white">No Articles Found</h3>
-                    <p className="mt-2 text-gray-500 dark:text-gray-400">Your search for &quot;{searchTerm}&quot; did not match any articles.</p>
+                 <div className="rounded-2xl border border-blue-100 bg-white/85 py-16 text-center shadow-sm">
+                    <MagnifyingGlassIcon className="mx-auto h-16 w-16 text-slate-400" />
+                    <h3 className="mt-4 text-2xl font-semibold text-slate-900">No Articles Found</h3>
+                    <p className="mt-2 text-slate-500">Your search for &quot;{searchTerm}&quot; did not match any articles.</p>
                 </div>
             )}
         </div>
