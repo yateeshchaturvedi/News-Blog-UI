@@ -19,8 +19,8 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "NewsHub - Your Daily Dose of News",
-  description: "Stay up-to-date with the latest news from around the world.",
+  title: "DevOps Blog: Your Dose",
+  description: "Stay up-to-date with the DevOps Learning.",
 };
 
 interface JwtPayload {
