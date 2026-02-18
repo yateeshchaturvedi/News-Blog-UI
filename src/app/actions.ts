@@ -7,7 +7,23 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { loginUser } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { createNewsArticle, updateNewsArticle, getNewsArticle, deleteNewsArticle, submitContact, createEditorAccount } from '@/lib/api';
+import {
+    createNewsArticle,
+    updateNewsArticle,
+    getNewsArticle,
+    deleteNewsArticle,
+    submitContact,
+    createEditorAccount,
+    createCategory,
+    updateCategory,
+    deleteCategory,
+    createBlog,
+    updateBlog,
+    deleteBlog,
+    createAdvertisement,
+    updateAdvertisement,
+    deleteAdvertisement,
+} from '@/lib/api';
 import { cookies } from 'next/headers';
 
 const FormSchema = z.object({
@@ -27,6 +43,23 @@ const ContactFormSchema = z.object({
 const EditorFormSchema = z.object({
     username: z.string().trim().min(3, 'Username must be at least 3 characters'),
     password: z.string().trim().min(6, 'Password must be at least 6 characters'),
+});
+
+const CategoryFormSchema = z.object({
+    name: z.string().trim().min(2, 'Category name must be at least 2 characters'),
+});
+
+const BlogFormSchema = z.object({
+    title: z.string().trim().min(3, 'Title must be at least 3 characters'),
+    content: z.string().trim().min(10, 'Content must be at least 10 characters'),
+});
+
+const AdvertisementFormSchema = z.object({
+    title: z.string().trim().min(2, 'Title must be at least 2 characters'),
+    imageUrl: z.string().trim().optional(),
+    linkUrl: z.string().trim().optional(),
+    placement: z.string().trim().min(2, 'Placement is required'),
+    isActive: z.string().trim().optional(),
 });
 
 async function saveNewsImage(file: File): Promise<string | undefined> {
@@ -60,6 +93,9 @@ export type FormState = {
         message?: string[];
         username?: string[];
         password?: string[];
+        imageUrl?: string[];
+        linkUrl?: string[];
+        placement?: string[];
     };
     success?: boolean;
 };
@@ -127,10 +163,10 @@ export async function createArticle(prevState: FormState, formData: FormData): P
     try {
         await createNewsArticle({ title, content, author, category, imageUrl: uploadedImage }, token);
         revalidatePath('/admin/dashboard/news');
-        return { message: 'Article created successfully', success: true };
+        return { message: 'Lesson created successfully', success: true };
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-        return { message: `Failed to create article: ${errorMessage}` };
+        return { message: `Failed to create lesson: ${errorMessage}` };
     }
 }
 
@@ -168,10 +204,10 @@ export async function updateArticle(id: string | number, prevState: FormState, f
     try {
         await updateNewsArticle(id, { title, content, category, status, imageUrl }, token);
         revalidatePath('/admin/dashboard/news');
-        return { message: 'Article updated successfully', success: true };
+        return { message: 'Lesson updated successfully', success: true };
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-        return { message: `Failed to update article: ${errorMessage}` };
+        return { message: `Failed to update lesson: ${errorMessage}` };
     }
 }
 
@@ -197,7 +233,7 @@ export async function setNewsStatus(id: string | number, status: 'PENDING' | 'AP
 
     const article = await getNewsArticle(id, token);
     if (!article) {
-        throw new Error('News not found');
+        throw new Error('Lesson not found');
     }
 
     await updateNewsArticle(
@@ -269,4 +305,186 @@ export async function createEditorByAdmin(prevState: FormState, formData: FormDa
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
         return { message: `Failed to create editor: ${errorMessage}` };
     }
+}
+
+export async function createCategoryByAdmin(prevState: FormState, formData: FormData): Promise<FormState> {
+    const token = (await cookies()).get('token')?.value;
+    if (!token) return { message: 'Authentication failed. Please log in again.' };
+
+    const validatedFields = CategoryFormSchema.safeParse({
+        name: formData.get('name'),
+    });
+    if (!validatedFields.success) {
+        return { message: 'Validation failed', errors: validatedFields.error.flatten().fieldErrors };
+    }
+
+    try {
+        await createCategory({ name: validatedFields.data.name }, token);
+        revalidatePath('/admin/dashboard/categories');
+        revalidatePath('/admin/dashboard/news/new');
+        return { message: 'Category created successfully', success: true };
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        return { message: `Failed to create category: ${errorMessage}` };
+    }
+}
+
+export async function updateCategoryByAdmin(id: string | number, prevState: FormState, formData: FormData): Promise<FormState> {
+    const token = (await cookies()).get('token')?.value;
+    if (!token) return { message: 'Authentication failed. Please log in again.' };
+
+    const validatedFields = CategoryFormSchema.safeParse({
+        name: formData.get('name'),
+    });
+    if (!validatedFields.success) {
+        return { message: 'Validation failed', errors: validatedFields.error.flatten().fieldErrors };
+    }
+
+    try {
+        await updateCategory(id, { name: validatedFields.data.name }, token);
+        revalidatePath('/admin/dashboard/categories');
+        revalidatePath('/admin/dashboard/news/new');
+        return { message: 'Category updated successfully', success: true };
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        return { message: `Failed to update category: ${errorMessage}` };
+    }
+}
+
+export async function deleteCategoryByAdmin(id: string | number): Promise<void> {
+    const token = (await cookies()).get('token')?.value;
+    if (!token) throw new Error('Authentication failed. Please log in again.');
+    await deleteCategory(id, token);
+    revalidatePath('/admin/dashboard/categories');
+    revalidatePath('/admin/dashboard/news/new');
+}
+
+export async function createBlogByAdmin(prevState: FormState, formData: FormData): Promise<FormState> {
+    const token = (await cookies()).get('token')?.value;
+    if (!token) return { message: 'Authentication failed. Please log in again.' };
+
+    const validatedFields = BlogFormSchema.safeParse({
+        title: formData.get('title'),
+        content: formData.get('content'),
+    });
+    if (!validatedFields.success) {
+        return { message: 'Validation failed', errors: validatedFields.error.flatten().fieldErrors };
+    }
+
+    try {
+        await createBlog(validatedFields.data, token);
+        revalidatePath('/admin/dashboard/blogs');
+        revalidatePath('/blog');
+        return { message: 'Blog created successfully', success: true };
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        return { message: `Failed to create blog: ${errorMessage}` };
+    }
+}
+
+export async function updateBlogByAdmin(id: string | number, prevState: FormState, formData: FormData): Promise<FormState> {
+    const token = (await cookies()).get('token')?.value;
+    if (!token) return { message: 'Authentication failed. Please log in again.' };
+
+    const validatedFields = BlogFormSchema.safeParse({
+        title: formData.get('title'),
+        content: formData.get('content'),
+    });
+    if (!validatedFields.success) {
+        return { message: 'Validation failed', errors: validatedFields.error.flatten().fieldErrors };
+    }
+
+    try {
+        await updateBlog(id, validatedFields.data, token);
+        revalidatePath('/admin/dashboard/blogs');
+        revalidatePath('/blog');
+        return { message: 'Blog updated successfully', success: true };
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        return { message: `Failed to update blog: ${errorMessage}` };
+    }
+}
+
+export async function deleteBlogByAdmin(id: string | number): Promise<void> {
+    const token = (await cookies()).get('token')?.value;
+    if (!token) throw new Error('Authentication failed. Please log in again.');
+    await deleteBlog(id, token);
+    revalidatePath('/admin/dashboard/blogs');
+    revalidatePath('/blog');
+}
+
+export async function createAdvertisementByAdmin(prevState: FormState, formData: FormData): Promise<FormState> {
+    const token = (await cookies()).get('token')?.value;
+    if (!token) return { message: 'Authentication failed. Please log in again.' };
+
+    const validatedFields = AdvertisementFormSchema.safeParse({
+        title: formData.get('title'),
+        imageUrl: formData.get('imageUrl') || '',
+        linkUrl: formData.get('linkUrl') || '',
+        placement: formData.get('placement'),
+        isActive: formData.get('isActive') ? 'true' : 'false',
+    });
+    if (!validatedFields.success) {
+        return { message: 'Validation failed', errors: validatedFields.error.flatten().fieldErrors };
+    }
+
+    try {
+        await createAdvertisement(
+            {
+                title: validatedFields.data.title,
+                imageUrl: validatedFields.data.imageUrl || undefined,
+                linkUrl: validatedFields.data.linkUrl || undefined,
+                placement: validatedFields.data.placement,
+                isActive: validatedFields.data.isActive === 'true',
+            },
+            token
+        );
+        revalidatePath('/admin/dashboard/advertisements');
+        return { message: 'Advertisement created successfully', success: true };
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        return { message: `Failed to create advertisement: ${errorMessage}` };
+    }
+}
+
+export async function updateAdvertisementByAdmin(id: string | number, prevState: FormState, formData: FormData): Promise<FormState> {
+    const token = (await cookies()).get('token')?.value;
+    if (!token) return { message: 'Authentication failed. Please log in again.' };
+
+    const validatedFields = AdvertisementFormSchema.safeParse({
+        title: formData.get('title'),
+        imageUrl: formData.get('imageUrl') || '',
+        linkUrl: formData.get('linkUrl') || '',
+        placement: formData.get('placement'),
+        isActive: formData.get('isActive') ? 'true' : 'false',
+    });
+    if (!validatedFields.success) {
+        return { message: 'Validation failed', errors: validatedFields.error.flatten().fieldErrors };
+    }
+
+    try {
+        await updateAdvertisement(
+            id,
+            {
+                title: validatedFields.data.title,
+                imageUrl: validatedFields.data.imageUrl || undefined,
+                linkUrl: validatedFields.data.linkUrl || undefined,
+                placement: validatedFields.data.placement,
+                isActive: validatedFields.data.isActive === 'true',
+            },
+            token
+        );
+        revalidatePath('/admin/dashboard/advertisements');
+        return { message: 'Advertisement updated successfully', success: true };
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        return { message: `Failed to update advertisement: ${errorMessage}` };
+    }
+}
+
+export async function deleteAdvertisementByAdmin(id: string | number): Promise<void> {
+    const token = (await cookies()).get('token')?.value;
+    if (!token) throw new Error('Authentication failed. Please log in again.');
+    await deleteAdvertisement(id, token);
+    revalidatePath('/admin/dashboard/advertisements');
 }

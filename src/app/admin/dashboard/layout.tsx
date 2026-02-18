@@ -1,4 +1,4 @@
-import { Home, Newspaper, Settings, LogOut, Menu } from 'lucide-react';
+import { Home, Newspaper, Settings, LogOut, Menu, FolderTree, BookOpenText, Megaphone } from 'lucide-react';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -37,7 +37,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
     const navItems = [
         { href: '/admin/dashboard', icon: Home, label: 'Dashboard' },
-        { href: '/admin/dashboard/news', icon: Newspaper, label: 'News' },
+        { href: '/admin/dashboard/news', icon: Newspaper, label: 'Lessons' },
+        { href: '/admin/dashboard/categories', icon: FolderTree, label: 'Categories' },
+        { href: '/admin/dashboard/blogs', icon: BookOpenText, label: 'Blogs' },
+        { href: '/admin/dashboard/advertisements', icon: Megaphone, label: 'Advertisements' },
         ...(role === 1 ? [{ href: '/admin/dashboard/settings', icon: Settings, label: 'Settings' }] : []),
     ];
 
@@ -47,7 +50,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 <div className="flex h-full max-h-screen flex-col gap-2">
                     <div className="flex h-14 items-center border-b border-blue-100 px-4 lg:h-[64px] lg:px-6">
                         <Link href="/" className="flex items-center gap-2 font-semibold">
-                             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-cyan-600">NewsHub</span>
+                             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-cyan-600">DevOpsHub</span>
                         </Link>
                     </div>
                     <div className="flex-1">
@@ -89,7 +92,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                                     href="/"
                                     className="mb-4 flex items-center gap-2 text-lg font-semibold"
                                 >
-                                     <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-cyan-600">NewsHub</span>
+                                     <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-cyan-600">DevOpsHub</span>
                                 </Link>
                                 {navItems.map((item) => (
                                     <Link

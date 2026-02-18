@@ -34,13 +34,13 @@ export default async function NewsListPage() {
         <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">News Articles</h1>
-                    <p className="text-muted-foreground">Manage all your news articles here.</p>
+                    <h1 className="text-3xl font-bold tracking-tight">Learning Modules</h1>
+                    <p className="text-muted-foreground">Manage all DevOps learning modules here.</p>
                 </div>
                 <Link href="/admin/dashboard/news/new">
                     <Button className="flex items-center gap-2">
                         <PlusCircle className="h-5 w-5" />
-                        <span>Create New Post</span>
+                        <span>Create New Lesson</span>
                     </Button>
                 </Link>
             </div>
@@ -53,7 +53,7 @@ export default async function NewsListPage() {
                                 <th scope="col" className="px-6 py-3">Title</th>
                                 <th scope="col" className="px-6 py-3">Author</th>
                                 <th scope="col" className="px-6 py-3">Status</th>
-                                <th scope="col" className="px-6 py-3">Published At</th>
+                                <th scope="col" className="px-6 py-3">Published On</th>
                                 <th scope="col" className="px-6 py-3 text-right">Actions</th>
                             </tr>
                         </thead>

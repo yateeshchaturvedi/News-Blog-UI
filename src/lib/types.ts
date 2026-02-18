@@ -29,6 +29,17 @@ export interface Category {
     name: string;
 }
 
+export interface Advertisement {
+    id: number | string;
+    title: string;
+    imageUrl?: string;
+    linkUrl?: string;
+    placement?: string;
+    isActive?: boolean;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
 export interface LoginResponse {
     token: string;
 }

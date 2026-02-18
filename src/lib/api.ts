@@ -1,4 +1,4 @@
-import { NewsArticle, Blog, Category } from '@/lib/types';
+import { NewsArticle, Blog, Category, Advertisement } from '@/lib/types';
 
 const API_BASE_URL = 'https://news-blog-api-mzxq.onrender.com/';
 
@@ -25,6 +25,42 @@ interface ApiArticle {
     status?: string;
     user_id?: number;
     category_id: number | null;
+}
+
+interface ApiBlog {
+    id: number | string;
+    title: string;
+    content: string;
+    createdAt?: string;
+    updatedAt?: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
+interface ApiCategory {
+    id: number | string;
+    name: string;
+    createdAt?: string;
+    updatedAt?: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
+interface ApiAdvertisement {
+    id: number | string;
+    title: string;
+    imageUrl?: string;
+    image_path?: string;
+    imagePath?: string;
+    linkUrl?: string;
+    link_url?: string;
+    placement?: string;
+    isActive?: boolean;
+    is_active?: boolean;
+    createdAt?: string;
+    updatedAt?: string;
+    created_at?: string;
+    updated_at?: string;
 }
 
 async function fetchAPI(endpoint: string, options: RequestInit = {}, token?: string) {
@@ -216,7 +252,17 @@ export const uploadImage = async (imageFile: File): Promise<string> => {
     return result.url;
 };
 
-export const getBlogs = (token?: string): Promise<Blog[]> => fetchAPI('api/blogs/', {}, token);
+export const getBlogs = async (token?: string): Promise<Blog[]> => {
+    const blogs = await fetchAPI('api/blogs/', {}, token);
+    if (!Array.isArray(blogs)) return [];
+    return blogs.map((blog: ApiBlog) => ({
+        id: blog.id,
+        title: blog.title,
+        content: blog.content || '',
+        createdAt: blog.createdAt || blog.created_at || '',
+        updatedAt: blog.updatedAt || blog.updated_at || blog.createdAt || blog.created_at || '',
+    }));
+};
 
 // Auth
 export const register = (data: Record<string, unknown>) => fetchAPI('api/auth/register', { method: 'POST', body: JSON.stringify(data) });
@@ -235,6 +281,87 @@ export const createEditorAccount = (data: { username: string; password: string }
 // Categories
 export const getCategories = (token?: string): Promise<Category[]> => fetchAPI('api/categories/', {}, token);
 export const createCategory = (data: Partial<Category>, token: string): Promise<Category> => fetchAPI('api/categories/', { method: 'POST', body: JSON.stringify(data) }, token);
+export const updateCategory = (id: string | number, data: Partial<Category>, token: string): Promise<Category> =>
+    fetchAPI(`api/categories/${encodeURIComponent(String(id))}/`, { method: 'PUT', body: JSON.stringify(data) }, token);
+export const deleteCategory = (id: string | number, token: string): Promise<void> =>
+    fetchAPI(`api/categories/${encodeURIComponent(String(id))}/`, { method: 'DELETE' }, token);
+
+// Blogs
+export const createBlog = (data: Pick<Blog, 'title' | 'content'>, token: string): Promise<Blog> =>
+    fetchAPI('api/blogs/', { method: 'POST', body: JSON.stringify(data) }, token);
+export const updateBlog = (id: string | number, data: Pick<Blog, 'title' | 'content'>, token: string): Promise<Blog> =>
+    fetchAPI(`api/blogs/${encodeURIComponent(String(id))}/`, { method: 'PUT', body: JSON.stringify(data) }, token);
+export const deleteBlog = (id: string | number, token: string): Promise<void> =>
+    fetchAPI(`api/blogs/${encodeURIComponent(String(id))}/`, { method: 'DELETE' }, token);
+
+// Advertisements
+export const getAdvertisements = async (token?: string): Promise<Advertisement[]> => {
+    const endpoints = ['api/advertisements/', 'api/ads/'];
+    for (const endpoint of endpoints) {
+        try {
+            const ads = await fetchAPI(endpoint, {}, token);
+            if (!Array.isArray(ads)) return [];
+            return ads.map((ad: ApiAdvertisement) => ({
+                id: ad.id,
+                title: ad.title,
+                imageUrl: ad.imageUrl || ad.image_path || ad.imagePath || '',
+                linkUrl: ad.linkUrl || ad.link_url || '',
+                placement: ad.placement || 'homepage',
+                isActive: ad.isActive ?? ad.is_active ?? true,
+                createdAt: ad.createdAt || ad.created_at || '',
+                updatedAt: ad.updatedAt || ad.updated_at || '',
+            }));
+        } catch {
+            continue;
+        }
+    }
+    return [];
+};
+
+export const createAdvertisement = async (
+    data: { title: string; imageUrl?: string; linkUrl?: string; placement?: string; isActive?: boolean },
+    token: string
+): Promise<Advertisement> => {
+    const payload = {
+        title: data.title,
+        imageUrl: data.imageUrl || null,
+        linkUrl: data.linkUrl || null,
+        placement: data.placement || 'homepage',
+        isActive: data.isActive ?? true,
+    };
+    try {
+        return await fetchAPI('api/advertisements/', { method: 'POST', body: JSON.stringify(payload) }, token);
+    } catch {
+        return fetchAPI('api/ads/', { method: 'POST', body: JSON.stringify(payload) }, token);
+    }
+};
+
+export const updateAdvertisement = async (
+    id: string | number,
+    data: { title: string; imageUrl?: string; linkUrl?: string; placement?: string; isActive?: boolean },
+    token: string
+): Promise<Advertisement> => {
+    const payload = {
+        title: data.title,
+        imageUrl: data.imageUrl || null,
+        linkUrl: data.linkUrl || null,
+        placement: data.placement || 'homepage',
+        isActive: data.isActive ?? true,
+    };
+    try {
+        return await fetchAPI(`api/advertisements/${encodeURIComponent(String(id))}/`, { method: 'PUT', body: JSON.stringify(payload) }, token);
+    } catch {
+        return fetchAPI(`api/ads/${encodeURIComponent(String(id))}/`, { method: 'PUT', body: JSON.stringify(payload) }, token);
+    }
+};
+
+export const deleteAdvertisement = async (id: string | number, token: string): Promise<void> => {
+    try {
+        await fetchAPI(`api/advertisements/${encodeURIComponent(String(id))}/`, { method: 'DELETE' }, token);
+    } catch {
+        await fetchAPI(`api/ads/${encodeURIComponent(String(id))}/`, { method: 'DELETE' }, token);
+    }
+};
 
 // Contact
 export const submitContact = (data: Record<string, unknown>) => fetchAPI('api/contact/', { method: 'POST', body: JSON.stringify(data) });

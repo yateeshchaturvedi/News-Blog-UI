@@ -32,22 +32,22 @@ export default async function AdminDashboard() {
 
     const summaryStats = [
         { 
-            title: 'Total Articles', 
+            title: 'Total Lessons', 
             value: totalArticles, 
             icon: Newspaper, 
-            description: 'All created news posts'
+            description: 'All created learning modules'
         },
         {
             title: 'Approved',
             value: approvedArticles,
             icon: BadgeCheck,
-            description: 'Visible on public home/news pages',
+            description: 'Visible on public learning pages',
         },
         {
             title: 'Pending',
             value: pendingArticles,
             icon: Clock3,
-            description: 'Needs approval before public visibility',
+            description: 'Pending review before publishing',
         },
     ];
 
@@ -58,14 +58,14 @@ export default async function AdminDashboard() {
                     <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Welcome Back, {roleName}</h1>
                     <p className="text-sm text-slate-600">
                         {role === 1
-                            ? 'Track publishing status and manage editorial operations.'
-                            : 'Create and manage content. Approval controls are available to admins.'}
+                            ? 'Track publishing status and manage DevOps learning modules.'
+                            : 'Create and update lessons. Approval controls are available to admins.'}
                     </p>
                 </div>
                 <Link href="/admin/dashboard/news/new">
                     <Button className="flex items-center gap-2">
                         <PlusCircle className="h-5 w-5" />
-                        <span>Create New Post</span>
+                        <span>Create New Lesson</span>
                     </Button>
                 </Link>
             </div>
@@ -86,12 +86,13 @@ export default async function AdminDashboard() {
             </div>
             
             <div>
-                <h2 className="mb-4 text-2xl font-semibold text-slate-900">Publishing Notes</h2>
+                <h2 className="mb-4 text-2xl font-semibold text-slate-900">Publishing Workflow</h2>
                 <div className="rounded-xl border border-blue-100 bg-white/90 text-card-foreground shadow-sm">
                     <div className="space-y-2 p-6 text-sm text-slate-600">
-                        <p>1. Articles with <span className="font-semibold text-slate-900">APPROVED</span> status are visible on public pages.</p>
-                        <p>2. Use the News table actions to quickly move posts between <span className="font-semibold text-slate-900">PENDING</span> and <span className="font-semibold text-slate-900">APPROVED</span>.</p>
+                        <p>1. Lessons with <span className="font-semibold text-slate-900">APPROVED</span> status are visible on public learning pages.</p>
+                        <p>2. Use lesson actions to move modules between <span className="font-semibold text-slate-900">PENDING</span> and <span className="font-semibold text-slate-900">APPROVED</span>.</p>
                         <p>3. Create editor accounts from <span className="font-semibold text-slate-900">Settings</span>.</p>
+                        <p>4. Manage taxonomy and promotions from <span className="font-semibold text-slate-900">Categories</span>, <span className="font-semibold text-slate-900">Blogs</span>, and <span className="font-semibold text-slate-900">Advertisements</span>.</p>
                     </div>
                 </div>
             </div>

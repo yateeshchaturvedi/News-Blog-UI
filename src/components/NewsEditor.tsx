@@ -7,9 +7,9 @@ import { useFormStatus } from 'react-dom';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/Button';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import RichTextEditor from '@/components/ui/rich-text-editor';
 import { NewsArticle, Category } from '@/lib/types';
 import { createArticle, updateArticle, FormState } from '@/app/actions';
 import { getCategories } from '@/lib/api';
@@ -23,7 +23,7 @@ function SubmitButton({ isUpdating }: { isUpdating: boolean }) {
 
     return (
         <Button type="submit" disabled={pending} className="w-full sm:w-auto">
-            {pending ? (isUpdating ? 'Updating...' : 'Creating...') : (isUpdating ? 'Update Article' : 'Create Article')}
+            {pending ? (isUpdating ? 'Updating...' : 'Creating...') : (isUpdating ? 'Update Lesson' : 'Create Lesson')}
         </Button>
     );
 }
@@ -82,7 +82,7 @@ export default function NewsEditor({ article, authorName, token }: { article?: N
                 <div className="md:col-span-2 space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Article Details</CardTitle>
+                            <CardTitle>Lesson Details</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div>
@@ -110,7 +110,12 @@ export default function NewsEditor({ article, authorName, token }: { article?: N
                             </div>
                             <div>
                                 <Label htmlFor="content">Content</Label>
-                                <Textarea id="content" name="content" defaultValue={article?.content} required  className="min-h-[300px]"/>
+                                <RichTextEditor
+                                    name="content"
+                                    defaultValue={article?.content || ''}
+                                    placeholder="Write lesson content..."
+                                    minHeightClassName="min-h-[300px]"
+                                />
                                 {formState.errors?.content && <p className="text-red-500 text-xs mt-1">{formState.errors.content[0]}</p>}
                             </div>
                         </CardContent>
@@ -119,7 +124,7 @@ export default function NewsEditor({ article, authorName, token }: { article?: N
                 <div className="space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Publish</CardTitle>
+                            <CardTitle>Publish Lesson</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <SubmitButton isUpdating={isUpdating} />

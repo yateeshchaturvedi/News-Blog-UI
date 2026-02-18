@@ -42,16 +42,16 @@ export default function AdminLoginPage() {
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 opacity-20 dark:opacity-30"></div>
         <div className="relative max-w-md w-full space-y-8 bg-white dark:bg-gray-800/80 backdrop-blur-sm p-10 rounded-2xl shadow-2xl">
             <div className="text-center">
-                 <Link href="/" className="inline-block mb-6">
+                <Link href="/" className="inline-block mb-6">
                     <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
-                        NewsHub Admin
+                        DevOpsHub Console
                     </h1>
                 </Link>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    Access Your Dashboard
+                    Access Learning CMS
                 </h2>
                 <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    Enter your credentials to continue
+                    Sign in to manage DevOps lessons and tracks
                 </p>
             </div>
 

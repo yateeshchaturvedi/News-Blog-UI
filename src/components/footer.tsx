@@ -9,7 +9,7 @@ export default function Footer() {
                     <div>
                         <h3 className="mb-4 text-xl font-semibold text-slate-900">About Us</h3>
                         <p className="text-slate-600">
-                            NewsHub is your go-to source for the latest news and information from around the world.
+                            DevOpsHub Academy helps engineers learn real DevOps workflows through practical, production-style lessons.
                         </p>
                     </div>
                     <div>
@@ -30,7 +30,7 @@ export default function Footer() {
                     </div>
                 </div>
                 <div className="mt-8 border-t border-blue-100 pt-6 text-center text-sm text-slate-500">
-                    &copy; 2024 NewsHub. All rights reserved.
+                    &copy; 2026 DevOpsHub Academy. All rights reserved.
                 </div>
             </div>
         </footer>

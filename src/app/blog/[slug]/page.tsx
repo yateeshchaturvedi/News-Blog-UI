@@ -8,7 +8,7 @@ export default function BlogPostPage({ params: paramsPromise }: { params: Promis
     const news = allNews.find(p => p.href === `/blog/${params.slug}`);
 
     if (!news) {
-        return <div className="text-center text-red-500">Blog post not found</div>;
+        return <div className="text-center text-red-500">Learning post not found</div>;
     }
 
     return (
@@ -19,18 +19,18 @@ export default function BlogPostPage({ params: paramsPromise }: { params: Promis
                 <div className="absolute bottom-0 left-0 p-12">
                      <span className="text-white bg-blue-500 px-3 py-1 rounded-full text-sm font-semibold">{news.category}</span>
                     <h1 className="text-5xl font-extrabold text-white mt-4 leading-tight">{news.title}</h1>
-                    <p className="text-gray-300 mt-2">Published on {news.createdAt}</p>
+                    <p className="text-gray-300 mt-2">Published: {news.createdAt}</p>
                 </div>
             </div>
             <div className="p-12">
                 <div className="prose dark:prose-invert max-w-none text-lg leading-relaxed">
                     <p className="text-xl font-semibold mb-6">{news.description}</p>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                    <p>Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi.</p>
+                    <p>This learning article walks through the practical workflow behind modern DevOps teams: plan a change, version it, validate it in CI, deploy safely, and observe impact in production.</p>
+                    <p>You can use this structure for every topic, from Docker image optimization to Kubernetes rollout strategy and Terraform state management.</p>
                     <blockquote className="border-l-4 border-blue-500 pl-6 py-4 my-8 bg-gray-50 dark:bg-gray-700">
-                        <p className="text-xl italic font-medium text-gray-900 dark:text-white">&quot;The future belongs to those who believe in the beauty of their dreams.&quot; - Eleanor Roosevelt</p>
+                        <p className="text-xl italic font-medium text-gray-900 dark:text-white">&quot;Automate what is repetitive, observe what is critical, and document what matters.&quot;</p>
                     </blockquote>
-                    <p>Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque. Praesent vitae nisi quis est limit sequi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla. </p>
+                    <p>Pair each lesson with a small lab, expected outcomes, and troubleshooting notes so learners can build confidence by executing real workflows instead of only reading theory.</p>
                 </div>
                 <div className="mt-12 p-6 bg-gray-50 dark:bg-gray-700 rounded-xl text-center">
                     <p className="text-gray-500 dark:text-gray-400">Advertisement</p>

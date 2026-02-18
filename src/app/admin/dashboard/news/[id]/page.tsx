@@ -18,12 +18,12 @@ async function EditNewsPageContent({ id }: { id: string }) {
     const article = await getNewsArticle(id);
 
     if (!article) {
-        return <div>Article not found</div>;
+        return <div>Lesson not found</div>;
     }
 
     return (
         <div>
-            <h1 className="text-3xl font-bold mb-8">Edit Article</h1>
+            <h1 className="text-3xl font-bold mb-8">Edit Lesson</h1>
             <NewsEditor article={article} token={token} />
         </div>
     );

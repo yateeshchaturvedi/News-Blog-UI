@@ -1,11 +1,11 @@
 
 export const navLinks = [
-    { name: "Politics", href: "/news/politics" },
-    { name: "Business", href: "/news/business" },
-    { name: "Technology", href: "/news/technology" },
-    { name: "Health", href: "/news/health" },
-    { name: "Entertainment", href: "/news/entertainment" },
-    { name: "Sports", href: "/news/sports" },
+    { name: "CI/CD", href: "/cicd" },
+    { name: "Containers", href: "/containers" },
+    { name: "Kubernetes", href: "/kubernetes" },
+    { name: "Cloud", href: "/cloud" },
+    { name: "IaC", href: "/iac" },
+    { name: "Observability", href: "/observability" },
     { name: "Contact", href: "/contact" },
 ];
 

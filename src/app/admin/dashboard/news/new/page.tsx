@@ -41,7 +41,7 @@ export default async function NewNewsPage() {
 
     return (
         <div>
-            <h1 className="text-3xl font-bold mb-8">Create New Article</h1>
+            <h1 className="text-3xl font-bold mb-8">Create New Lesson</h1>
             <NewsEditor authorName={authorName} token={token} />
         </div>
     );
