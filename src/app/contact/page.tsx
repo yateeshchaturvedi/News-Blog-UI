@@ -49,7 +49,7 @@ export default function ContactPage() {
     const [state, formAction] = useFormState(submitContactForm, initialState);
 
     const contactInfo = [
-        { icon: Mail, text: 'hello@devopshub.academy', href: 'mailto:hello@devopshub.academy' },
+        { icon: Mail, text: 'hello@DevOpsTic.academy', href: 'mailto:hello@DevOpsTic.academy' },
         { icon: Phone, text: '+1 (555) 987-2048', href: 'tel:+15559872048' },
         { icon: MapPin, text: '42 Deployment Lane, San Francisco, CA', href: '#' },
     ];
@@ -58,7 +58,7 @@ export default function ContactPage() {
         <div className="rounded-3xl border border-blue-100 bg-white/85 py-12 shadow-sm sm:py-16">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
                 <div className="text-center">
-                    <h1 className="text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">Contact DevOpsHub</h1>
+                    <h1 className="text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">Contact DevOpsTic</h1>
                     <p className="mt-4 text-lg leading-6 text-slate-600">Need help with a learning track or roadmap? We&apos;re here to help.</p>
                 </div>
 
