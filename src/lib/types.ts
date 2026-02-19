@@ -43,3 +43,17 @@ export interface Advertisement {
 export interface LoginResponse {
     token: string;
 }
+
+export interface UserProfile {
+    id: number;
+    username: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    bio?: string;
+    avatarUrl?: string;
+    roleId: number;
+    roleName?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}

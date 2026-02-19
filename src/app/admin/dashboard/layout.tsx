@@ -1,4 +1,4 @@
-import { Home, Newspaper, Settings, LogOut, Menu, FolderTree, BookOpenText, Megaphone } from 'lucide-react';
+import { Home, Newspaper, Settings, LogOut, Menu, FolderTree, BookOpenText, Megaphone, UserRound } from 'lucide-react';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -38,6 +38,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     const navItems = [
         { href: '/admin/dashboard', icon: Home, label: 'Dashboard' },
         { href: '/admin/dashboard/news', icon: Newspaper, label: 'Lessons' },
+        { href: '/admin/dashboard/profile', icon: UserRound, label: 'Profile' },
         { href: '/admin/dashboard/categories', icon: FolderTree, label: 'Categories' },
         { href: '/admin/dashboard/blogs', icon: BookOpenText, label: 'Blogs' },
         { href: '/admin/dashboard/advertisements', icon: Megaphone, label: 'Advertisements' },

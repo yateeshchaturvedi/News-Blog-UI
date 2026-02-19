@@ -62,6 +62,21 @@ export default function SettingsPage() {
                                 <Input id="password" name="password" type="password" placeholder="At least 6 characters" required />
                                 {state.errors?.password && <p className="text-xs text-red-500">{state.errors.password[0]}</p>}
                             </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="fullName">Full Name</Label>
+                                <Input id="fullName" name="fullName" placeholder="Editor full name" required />
+                                {state.errors?.fullName && <p className="text-xs text-red-500">{state.errors.fullName[0]}</p>}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Email</Label>
+                                <Input id="email" name="email" type="email" placeholder="editor@example.com" required />
+                                {state.errors?.email && <p className="text-xs text-red-500">{state.errors.email[0]}</p>}
+                            </div>
+                            <div className="space-y-2 md:col-span-2">
+                                <Label htmlFor="phone">Phone Number</Label>
+                                <Input id="phone" name="phone" placeholder="+1 555 123 4567" required />
+                                {state.errors?.phone && <p className="text-xs text-red-500">{state.errors.phone[0]}</p>}
+                            </div>
                         </div>
                         <div className="pt-2">
                             <CreateEditorButton />

@@ -1,4 +1,4 @@
-import { NewsArticle, Blog, Category, Advertisement } from '@/lib/types';
+import { NewsArticle, Blog, Category, Advertisement, UserProfile } from '@/lib/types';
 
 const configuredApiBaseUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL;
@@ -60,6 +60,20 @@ interface ApiAdvertisement {
     updatedAt?: string;
     created_at?: string;
     updated_at?: string;
+}
+
+interface ApiUserProfile {
+    id: number;
+    username: string;
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    bio?: string;
+    avatarUrl?: string;
+    roleId: number;
+    roleName?: string;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 async function fetchAPI(endpoint: string, options: RequestInit = {}, token?: string) {
@@ -267,11 +281,37 @@ export const getBlogs = async (token?: string): Promise<Blog[]> => {
 // Auth
 export const register = (data: Record<string, unknown>) => fetchAPI('api/auth/register', { method: 'POST', body: JSON.stringify(data) });
 export const login = (data: Record<string, unknown>) => fetchAPI('api/auth/login', { method: 'POST', body: JSON.stringify(data) });
-export const createEditorAccount = (data: { username: string; password: string }, token: string) =>
+export const createEditorAccount = (
+    data: { username: string; password: string; fullName: string; email: string; phone: string },
+    token: string
+) =>
     fetchAPI('api/auth/register-editor', {
         method: 'POST',
         body: JSON.stringify(data),
     }, token);
+
+export const getMyProfile = async (token: string): Promise<UserProfile> => {
+    const profile = await fetchAPI('api/auth/me', {}, token) as ApiUserProfile;
+    return {
+        id: profile.id,
+        username: profile.username,
+        fullName: profile.fullName || '',
+        email: profile.email || '',
+        phone: profile.phone || '',
+        bio: profile.bio || '',
+        avatarUrl: profile.avatarUrl || '',
+        roleId: profile.roleId,
+        roleName: profile.roleName || '',
+        createdAt: profile.createdAt || '',
+        updatedAt: profile.updatedAt || '',
+    };
+};
+
+export const updateMyProfile = (
+    data: Pick<UserProfile, 'fullName' | 'email' | 'phone'> & Partial<Pick<UserProfile, 'bio' | 'avatarUrl'>>,
+    token: string
+): Promise<UserProfile> =>
+    fetchAPI('api/auth/me', { method: 'PUT', body: JSON.stringify(data) }, token);
 
 // Categories
 export const getCategories = (token?: string): Promise<Category[]> => fetchAPI('api/categories/', {}, token);

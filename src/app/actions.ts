@@ -21,6 +21,7 @@ import {
     createAdvertisement,
     updateAdvertisement,
     deleteAdvertisement,
+    updateMyProfile,
 } from '@/lib/api';
 import { cookies } from 'next/headers';
 
@@ -41,6 +42,17 @@ const ContactFormSchema = z.object({
 const EditorFormSchema = z.object({
     username: z.string().trim().min(3, 'Username must be at least 3 characters'),
     password: z.string().trim().min(6, 'Password must be at least 6 characters'),
+    fullName: z.string().trim().min(2, 'Full name is required'),
+    email: z.string().trim().email('A valid email is required'),
+    phone: z.string().trim().min(7, 'Phone number is required'),
+});
+
+const ProfileFormSchema = z.object({
+    fullName: z.string().trim().min(2, 'Full name is required'),
+    email: z.string().trim().email('A valid email is required'),
+    phone: z.string().trim().min(7, 'Phone number is required'),
+    bio: z.string().trim().optional(),
+    avatarUrl: z.string().trim().url('Avatar URL must be valid').optional().or(z.literal('')),
 });
 
 const CategoryFormSchema = z.object({
@@ -87,9 +99,13 @@ export type FormState = {
         message?: string[];
         username?: string[];
         password?: string[];
+        fullName?: string[];
         imageUrl?: string[];
         linkUrl?: string[];
         placement?: string[];
+        phone?: string[];
+        bio?: string[];
+        avatarUrl?: string[];
     };
     success?: boolean;
 };
@@ -264,6 +280,9 @@ export async function createEditorByAdmin(prevState: FormState, formData: FormDa
     const validatedFields = EditorFormSchema.safeParse({
         username: formData.get('username'),
         password: formData.get('password'),
+        fullName: formData.get('fullName'),
+        email: formData.get('email'),
+        phone: formData.get('phone'),
     });
 
     if (!validatedFields.success) {
@@ -273,14 +292,54 @@ export async function createEditorByAdmin(prevState: FormState, formData: FormDa
         };
     }
 
-    const { username, password } = validatedFields.data;
+    const { username, password, fullName, email, phone } = validatedFields.data;
 
     try {
-        await createEditorAccount({ username, password }, token);
+        await createEditorAccount({ username, password, fullName, email, phone }, token);
         return { message: 'Editor account created successfully', success: true };
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
         return { message: `Failed to create editor: ${errorMessage}` };
+    }
+}
+
+export async function updateProfileByUser(prevState: FormState, formData: FormData): Promise<FormState> {
+    const token = (await cookies()).get('token')?.value;
+    if (!token) {
+        return { message: 'Authentication failed. Please log in again.' };
+    }
+
+    const validatedFields = ProfileFormSchema.safeParse({
+        fullName: formData.get('fullName'),
+        email: formData.get('email'),
+        phone: formData.get('phone'),
+        bio: formData.get('bio') || '',
+        avatarUrl: formData.get('avatarUrl') || '',
+    });
+
+    if (!validatedFields.success) {
+        return {
+            message: 'Validation failed',
+            errors: validatedFields.error.flatten().fieldErrors,
+        };
+    }
+
+    try {
+        await updateMyProfile(
+            {
+                fullName: validatedFields.data.fullName,
+                email: validatedFields.data.email,
+                phone: validatedFields.data.phone,
+                bio: validatedFields.data.bio || '',
+                avatarUrl: validatedFields.data.avatarUrl || '',
+            },
+            token
+        );
+        revalidatePath('/admin/dashboard/profile');
+        return { message: 'Profile updated successfully', success: true };
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        return { message: `Failed to update profile: ${errorMessage}` };
     }
 }
 
