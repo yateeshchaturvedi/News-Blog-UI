@@ -50,7 +50,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 <div className="flex h-full max-h-screen flex-col gap-2">
                     <div className="flex h-14 items-center border-b border-blue-100 px-4 lg:h-[64px] lg:px-6">
                         <Link href="/" className="flex items-center gap-2 font-semibold">
-                             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-cyan-600">DevOpsHub</span>
+                             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-cyan-600">DevOpsTic</span>
                         </Link>
                     </div>
                     <div className="flex-1">
@@ -92,7 +92,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                                     href="/"
                                     className="mb-4 flex items-center gap-2 text-lg font-semibold"
                                 >
-                                     <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-cyan-600">DevOpsHub</span>
+                                     <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-cyan-600">DevOpsTic</span>
                                 </Link>
                                 {navItems.map((item) => (
                                     <Link
