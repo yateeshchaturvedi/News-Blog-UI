@@ -80,7 +80,6 @@ export default function RichTextEditor({
         if (editor && editor.getHTML() !== defaultValue) {
             editor.commands.setContent(defaultValue || '');
         }
-        setHtml(defaultValue);
     }, [defaultValue, editor]);
 
     const runLink = () => {

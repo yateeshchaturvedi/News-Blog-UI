@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
 import NewsEditor from '@/components/NewsEditor';
+import { getCategories } from '@/lib/api';
 
 interface JwtPayload {
     name?: string;
@@ -23,6 +24,7 @@ export default async function NewNewsPage() {
     }
 
     let authorName = 'Admin';
+    const categories = await getCategories(token);
     try {
         const decodedToken = jwtDecode<JwtPayload>(token);
         authorName =
@@ -42,7 +44,7 @@ export default async function NewNewsPage() {
     return (
         <div>
             <h1 className="text-3xl font-bold mb-8">Create New Lesson</h1>
-            <NewsEditor authorName={authorName} token={token} />
+            <NewsEditor authorName={authorName} initialCategories={categories} />
         </div>
     );
 }

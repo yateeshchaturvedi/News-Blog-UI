@@ -1,6 +1,6 @@
 import { NewsArticle, Blog, Category, Advertisement } from '@/lib/types';
 
-const API_BASE_URL = 'https://news-blog-api-mzxq.onrender.com/';
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000').replace(/\/+$/, '');
 
 interface ApiArticle {
     id: number | string;
@@ -37,15 +37,6 @@ interface ApiBlog {
     updated_at?: string;
 }
 
-interface ApiCategory {
-    id: number | string;
-    name: string;
-    createdAt?: string;
-    updatedAt?: string;
-    created_at?: string;
-    updated_at?: string;
-}
-
 interface ApiAdvertisement {
     id: number | string;
     title: string;
@@ -64,7 +55,8 @@ interface ApiAdvertisement {
 }
 
 async function fetchAPI(endpoint: string, options: RequestInit = {}, token?: string) {
-    const url = `${API_BASE_URL}${endpoint}`;
+    const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const url = `${API_BASE_URL}${normalizedEndpoint}`;
     const headers: Record<string, string> = { ...options.headers as Record<string, string> };
     if (options.body) headers['Content-Type'] = 'application/json';
     if (token) {
@@ -238,7 +230,7 @@ export const uploadImage = async (imageFile: File): Promise<string> => {
     const formData = new FormData();
     formData.append('file', imageFile);
 
-    const response = await fetch(`${API_BASE_URL}api/upload/`, {
+    const response = await fetch(`${API_BASE_URL}/api/upload/`, {
         method: 'POST',
         body: formData,
     });
@@ -267,16 +259,11 @@ export const getBlogs = async (token?: string): Promise<Blog[]> => {
 // Auth
 export const register = (data: Record<string, unknown>) => fetchAPI('api/auth/register', { method: 'POST', body: JSON.stringify(data) });
 export const login = (data: Record<string, unknown>) => fetchAPI('api/auth/login', { method: 'POST', body: JSON.stringify(data) });
-export const createEditorAccount = (data: { username: string; password: string }) =>
-    fetchAPI('api/auth/register', {
+export const createEditorAccount = (data: { username: string; password: string }, token: string) =>
+    fetchAPI('api/auth/register-editor', {
         method: 'POST',
-        body: JSON.stringify({
-            ...data,
-            role: 'EDITOR',
-            roleId: 2,
-            role_id: 2,
-        }),
-    });
+        body: JSON.stringify(data),
+    }, token);
 
 // Categories
 export const getCategories = (token?: string): Promise<Category[]> => fetchAPI('api/categories/', {}, token);

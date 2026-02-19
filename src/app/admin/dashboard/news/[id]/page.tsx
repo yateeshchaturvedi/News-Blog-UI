@@ -1,4 +1,4 @@
-import { getNewsArticle } from '@/lib/api';
+import { getCategories, getNewsArticle } from '@/lib/api';
 import NewsEditor from '@/components/NewsEditor';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -15,7 +15,10 @@ async function EditNewsPageContent({ id }: { id: string }) {
     const token = cookieStore.get('token')?.value;
     if (!token) redirect('/admin');
 
-    const article = await getNewsArticle(id);
+    const [article, categories] = await Promise.all([
+        getNewsArticle(id, token),
+        getCategories(token),
+    ]);
 
     if (!article) {
         return <div>Lesson not found</div>;
@@ -24,7 +27,7 @@ async function EditNewsPageContent({ id }: { id: string }) {
     return (
         <div>
             <h1 className="text-3xl font-bold mb-8">Edit Lesson</h1>
-            <NewsEditor article={article} token={token} />
+            <NewsEditor article={article} initialCategories={categories} />
         </div>
     );
 }

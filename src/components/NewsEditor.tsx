@@ -12,7 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import RichTextEditor from '@/components/ui/rich-text-editor';
 import { NewsArticle, Category } from '@/lib/types';
 import { createArticle, updateArticle, FormState } from '@/app/actions';
-import { getCategories } from '@/lib/api';
 
 const initialState: FormState = {
     message: "",
@@ -28,41 +27,32 @@ function SubmitButton({ isUpdating }: { isUpdating: boolean }) {
     );
 }
 
-export default function NewsEditor({ article, authorName, token }: { article?: NewsArticle; authorName?: string, token?: string }) {
+export default function NewsEditor({
+    article,
+    authorName,
+    initialCategories = [],
+}: {
+    article?: NewsArticle;
+    authorName?: string;
+    initialCategories?: Category[];
+}) {
     const router = useRouter();
     const [isUpdating] = useState(!!article);
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [selectedCategory, setSelectedCategory] = useState(article?.category ? String(article.category) : '');
-    const [isLoadingCategories, setIsLoadingCategories] = useState(true);
-    const [categoryError, setCategoryError] = useState<string | null>(null);
+    const [categories] = useState<Category[]>(initialCategories);
+    const [selectedCategory, setSelectedCategory] = useState(
+        article?.category
+            ? String(article.category)
+            : initialCategories.length > 0
+                ? String(initialCategories[0].id)
+                : ''
+    );
+    const [isLoadingCategories] = useState(false);
+    const [categoryError] = useState<string | null>(null);
 
     const [formState, formAction] = useActionState(
         isUpdating ? updateArticle.bind(null, String(article!.id)) : createArticle,
         initialState
     );
-
-    useEffect(() => {
-        async function fetchCategories() {
-            if (!token) {
-                setIsLoadingCategories(false);
-                setCategoryError("Authentication token is missing.");
-                return;
-            }
-            try {
-                const fetchedCategories = await getCategories(token);
-                console.log('Fetched categories:', fetchedCategories);
-                setCategories(fetchedCategories);
-                setSelectedCategory((prev) => prev || (fetchedCategories.length > 0 ? String(fetchedCategories[0].id) : ''));
-            } catch (error) {
-                console.error("Failed to fetch categories:", error);
-                setCategoryError(error instanceof Error ? error.message : "An unknown error occurred.");
-            } finally {
-                setIsLoadingCategories(false);
-            }
-        }
-
-        fetchCategories();
-    }, [token]);
 
     useEffect(() => {
         if (formState.success) {
@@ -74,7 +64,6 @@ export default function NewsEditor({ article, authorName, token }: { article?: N
 
     return (
         <form action={formAction}>
-            <input type="hidden" name="token" value={token || ''} />
             <input type="hidden" name="category" value={selectedCategory} />
             <input type="hidden" name="status" value={article?.status || 'PENDING'} />
             <input type="hidden" name="currentImagePath" value={article?.imageUrl || ''} />

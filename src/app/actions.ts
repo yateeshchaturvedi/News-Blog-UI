@@ -8,7 +8,7 @@ import { revalidatePath } from 'next/cache';
 import {
     createNewsArticle,
     updateNewsArticle,
-    getNewsArticle,
+    updateNewsStatusArticle,
     deleteNewsArticle,
     submitContact,
     createEditorAccount,
@@ -111,6 +111,7 @@ export async function login(prevState: FormState, formData: FormData): Promise<F
         await cookieStore.set('token', result.token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
             maxAge: 60 * 60 * 24 * 7, // 1 week
             path: '/',
         });
@@ -128,9 +129,7 @@ export async function logout() {
 
 export async function createArticle(prevState: FormState, formData: FormData): Promise<FormState> {
     const cookieStore = await cookies();
-    const tokenFromCookie = cookieStore.get('token')?.value;
-    const tokenFromForm = formData.get('token');
-    const token = tokenFromCookie || (typeof tokenFromForm === 'string' ? tokenFromForm : '');
+    const token = cookieStore.get('token')?.value;
 
     if (!token) {
         return { message: 'Authentication failed. Please log in again.' };
@@ -166,9 +165,7 @@ export async function createArticle(prevState: FormState, formData: FormData): P
 
 export async function updateArticle(id: string | number, prevState: FormState, formData: FormData): Promise<FormState> {
     const cookieStore = await cookies();
-    const tokenFromCookie = cookieStore.get('token')?.value;
-    const tokenFromForm = formData.get('token');
-    const token = tokenFromCookie || (typeof tokenFromForm === 'string' ? tokenFromForm : '');
+    const token = cookieStore.get('token')?.value;
 
     if (!token) {
         return { message: 'Authentication failed. Please log in again.' };
@@ -225,21 +222,7 @@ export async function setNewsStatus(id: string | number, status: 'PENDING' | 'AP
         throw new Error('Authentication failed. Please log in again.');
     }
 
-    const article = await getNewsArticle(id, token);
-    if (!article) {
-        throw new Error('Lesson not found');
-    }
-
-    await updateNewsArticle(
-        id,
-        {
-            title: article.title,
-            content: article.content || '',
-            category: article.category,
-            status,
-        },
-        token
-    );
+    await updateNewsStatusArticle(id, status, token);
     revalidatePath('/');
     revalidatePath('/news');
     revalidatePath('/news/[...slug]');
@@ -293,7 +276,7 @@ export async function createEditorByAdmin(prevState: FormState, formData: FormDa
     const { username, password } = validatedFields.data;
 
     try {
-        await createEditorAccount({ username, password });
+        await createEditorAccount({ username, password }, token);
         return { message: 'Editor account created successfully', success: true };
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
