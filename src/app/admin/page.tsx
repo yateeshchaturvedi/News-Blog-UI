@@ -44,7 +44,7 @@ export default function AdminLoginPage() {
             <div className="text-center">
                 <Link href="/" className="inline-block mb-6">
                     <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
-                        DevOpsHub Console
+                        DevOpsTic Console
                     </h1>
                 </Link>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
