@@ -23,7 +23,7 @@ export default function Header() {
         <header className="sticky top-0 z-50 border-b border-white/60 bg-white/80 shadow-sm backdrop-blur-xl">
             <div className="mx-auto flex w-full max-w-[1240px] items-center justify-between gap-3 px-4 py-3 md:px-6">
                 <Link href="/" className="text-4xl font-semibold leading-none text-slate-900">
-                    DevOpsHub
+                    DevOpsTic
                 </Link>
                 <nav className="hidden items-center gap-5 md:flex">
                     {navLinks.map((link) => (
