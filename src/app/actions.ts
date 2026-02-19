@@ -48,11 +48,14 @@ const EditorFormSchema = z.object({
 });
 
 const ProfileFormSchema = z.object({
+    username: z.string().trim().min(3, 'Username must be at least 3 characters'),
     fullName: z.string().trim().min(2, 'Full name is required'),
     email: z.string().trim().email('A valid email is required'),
     phone: z.string().trim().min(7, 'Phone number is required'),
     bio: z.string().trim().optional(),
     avatarUrl: z.string().trim().url('Avatar URL must be valid').optional().or(z.literal('')),
+    currentPassword: z.string().trim().optional(),
+    newPassword: z.string().trim().optional(),
 });
 
 const CategoryFormSchema = z.object({
@@ -86,6 +89,19 @@ async function saveNewsImage(file: File): Promise<string | undefined> {
     return blob.url; // This is your public image URL
 }
 
+async function saveProfileImage(file: File): Promise<string | undefined> {
+    if (!(file instanceof File) || file.size === 0) {
+        return undefined;
+    }
+
+    const fileName = `profiles/${Date.now()}-${file.name}`;
+    const blob = await put(fileName, file, {
+        access: 'public',
+    });
+
+    return blob.url;
+}
+
 export type FormState = {
     message: string;
     errors?: {
@@ -106,6 +122,8 @@ export type FormState = {
         phone?: string[];
         bio?: string[];
         avatarUrl?: string[];
+        currentPassword?: string[];
+        newPassword?: string[];
     };
     success?: boolean;
 };
@@ -310,11 +328,14 @@ export async function updateProfileByUser(prevState: FormState, formData: FormDa
     }
 
     const validatedFields = ProfileFormSchema.safeParse({
+        username: formData.get('username'),
         fullName: formData.get('fullName'),
         email: formData.get('email'),
         phone: formData.get('phone'),
         bio: formData.get('bio') || '',
         avatarUrl: formData.get('avatarUrl') || '',
+        currentPassword: formData.get('currentPassword') || '',
+        newPassword: formData.get('newPassword') || '',
     });
 
     if (!validatedFields.success) {
@@ -324,14 +345,30 @@ export async function updateProfileByUser(prevState: FormState, formData: FormDa
         };
     }
 
+    const currentPassword = validatedFields.data.currentPassword || '';
+    const newPassword = validatedFields.data.newPassword || '';
+
+    if ((currentPassword && !newPassword) || (!currentPassword && newPassword)) {
+        return { message: 'To reset password, provide both current and new password.' };
+    }
+
+    if (newPassword && newPassword.length < 6) {
+        return { message: 'New password must be at least 6 characters long.' };
+    }
+
+    const uploadedAvatar = await saveProfileImage(formData.get('avatarFile') as File);
+
     try {
         await updateMyProfile(
             {
+                username: validatedFields.data.username,
                 fullName: validatedFields.data.fullName,
                 email: validatedFields.data.email,
                 phone: validatedFields.data.phone,
                 bio: validatedFields.data.bio || '',
-                avatarUrl: validatedFields.data.avatarUrl || '',
+                avatarUrl: uploadedAvatar || validatedFields.data.avatarUrl || '',
+                currentPassword: currentPassword || undefined,
+                newPassword: newPassword || undefined,
             },
             token
         );

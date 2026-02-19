@@ -32,9 +32,21 @@ export default function NewsCard({ article }: { article: NewsArticle }) {
                     <h3 className="mb-2 line-clamp-2 text-xl font-semibold text-slate-900 transition-colors group-hover:text-blue-700">{article.title}</h3>
                     <p className="flex-grow text-sm leading-6 text-slate-600">{article.summary ?? ''}</p>
                     <div className="mt-5 flex items-center justify-between border-t border-blue-50 pt-3">
-                        <span className="text-xs font-medium text-slate-500">{createdDate ? new Date(createdDate).toLocaleDateString() : 'N/A'}</span>
+                        <div className="flex items-center gap-2">
+                            <Image
+                                src={article.authorAvatarUrl || "/placeholder.svg"}
+                                alt={article.author || 'Author'}
+                                width={18}
+                                height={18}
+                                className="h-[18px] w-[18px] rounded-full object-cover"
+                            />
+                            <span className="text-[11px] font-medium text-slate-500">{article.author || 'Unknown author'}</span>
+                        </div>
                         <span className="text-xs font-semibold text-blue-700 transition-transform group-hover:translate-x-0.5">Start lesson</span>
                     </div>
+                    <span className="mt-1 text-[11px] text-slate-400">
+                        {createdDate ? new Date(createdDate).toLocaleDateString() : 'N/A'}
+                    </span>
                 </div>
             </div>
         </Link>

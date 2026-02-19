@@ -3,6 +3,7 @@ export interface NewsArticle {
     title: string;
     content?: string;
     author?: string;
+    authorAvatarUrl?: string;
     status?: string;
     user_id?: number;
     summary?: string;

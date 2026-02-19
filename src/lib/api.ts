@@ -18,6 +18,7 @@ interface ApiArticle {
     createdBy?: string;
     userId?: string;
     author_name?: string;
+    author_avatar_url?: string;
     authorName?: string;
     user?: {
         name?: string;
@@ -146,6 +147,7 @@ export const getNews = async (token?: string): Promise<NewsArticle[]> => {
             id: article.id.toString(),
             title: article.title,
             author,
+            authorAvatarUrl: article.author_avatar_url || '',
             summary: article.content ? article.content.substring(0, 100) + '...' : '',
             content: article.content || '',
             full_content: article.content || '',
@@ -193,6 +195,7 @@ export const getNewsArticle = async (id: string | number, token?: string): Promi
             id: article.id.toString(),
             title: article.title,
             author,
+            authorAvatarUrl: article.author_avatar_url || '',
             summary: article.content ? article.content.substring(0, 100) + '...' : '',
             content: article.content || '', // Add this line
             full_content: article.content || '',
@@ -308,7 +311,11 @@ export const getMyProfile = async (token: string): Promise<UserProfile> => {
 };
 
 export const updateMyProfile = (
-    data: Pick<UserProfile, 'fullName' | 'email' | 'phone'> & Partial<Pick<UserProfile, 'bio' | 'avatarUrl'>>,
+    data: Pick<UserProfile, 'username' | 'fullName' | 'email' | 'phone'> &
+        Partial<Pick<UserProfile, 'bio' | 'avatarUrl'>> & {
+            currentPassword?: string;
+            newPassword?: string;
+        },
     token: string
 ): Promise<UserProfile> =>
     fetchAPI('api/auth/me', { method: 'PUT', body: JSON.stringify(data) }, token);

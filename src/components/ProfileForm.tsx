@@ -50,7 +50,8 @@ export default function ProfileForm({ profile }: { profile: UserProfile }) {
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <Label htmlFor="username">Username</Label>
-                            <Input id="username" defaultValue={profile.username} disabled />
+                            <Input id="username" name="username" defaultValue={profile.username} required />
+                            {state.errors?.username && <p className="text-xs text-red-500">{state.errors.username[0]}</p>}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="role">Role</Label>
@@ -76,6 +77,10 @@ export default function ProfileForm({ profile }: { profile: UserProfile }) {
                             <Input id="avatarUrl" name="avatarUrl" defaultValue={profile.avatarUrl || ''} />
                             {state.errors?.avatarUrl && <p className="text-xs text-red-500">{state.errors.avatarUrl[0]}</p>}
                         </div>
+                        <div className="space-y-2 md:col-span-2">
+                            <Label htmlFor="avatarFile">Upload Profile Image</Label>
+                            <Input id="avatarFile" name="avatarFile" type="file" accept="image/*" />
+                        </div>
                     </div>
 
                     <div className="space-y-2">
@@ -88,6 +93,19 @@ export default function ProfileForm({ profile }: { profile: UserProfile }) {
                             className="block w-full rounded-md border border-slate-300 bg-white px-3.5 py-2 text-slate-900 shadow-sm focus:ring-2 focus:ring-blue-500 sm:text-sm"
                         />
                         {state.errors?.bio && <p className="text-xs text-red-500">{state.errors.bio[0]}</p>}
+                    </div>
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                            <Label htmlFor="currentPassword">Current Password</Label>
+                            <Input id="currentPassword" name="currentPassword" type="password" />
+                            {state.errors?.currentPassword && <p className="text-xs text-red-500">{state.errors.currentPassword[0]}</p>}
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="newPassword">New Password</Label>
+                            <Input id="newPassword" name="newPassword" type="password" />
+                            {state.errors?.newPassword && <p className="text-xs text-red-500">{state.errors.newPassword[0]}</p>}
+                        </div>
                     </div>
 
                     <div className="pt-2">

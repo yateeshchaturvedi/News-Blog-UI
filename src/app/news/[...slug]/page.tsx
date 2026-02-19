@@ -138,6 +138,18 @@ async function ArticleDetail({ articleId }: { articleId: string }) {
             </Link>
         </div>
         <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">{article.title}</h1>
+        <div className="mb-3 flex items-center gap-2">
+          <Image
+            src={article.authorAvatarUrl || '/placeholder.svg'}
+            alt={article.author || 'Author'}
+            width={20}
+            height={20}
+            className="h-5 w-5 rounded-full object-cover"
+          />
+          <span className="text-xs text-gray-500 dark:text-gray-400">
+            Written by {article.author || 'Unknown author'}
+          </span>
+        </div>
         <p className="text-lg text-gray-600 dark:text-gray-300 mb-2">{displayCategory}</p>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
           Published on: {publishedDate ? new Date(publishedDate).toLocaleDateString() : 'N/A'}
