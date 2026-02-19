@@ -46,7 +46,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     ];
 
     return (
-        <div className="grid min-h-screen w-full md:grid-cols-[240px_1fr] lg:grid-cols-[300px_1fr]">
+        <div className="relative left-1/2 right-1/2 ml-[-50vw] mr-[-50vw] grid min-h-[calc(100vh-8rem)] w-screen bg-gradient-to-br from-sky-50 via-blue-50 to-cyan-50 md:grid-cols-[240px_1fr] lg:grid-cols-[300px_1fr]">
             <div className="hidden border-r border-blue-100 bg-white/85 backdrop-blur md:block">
                 <div className="flex h-full max-h-screen flex-col gap-2">
                     <div className="flex h-14 items-center border-b border-blue-100 px-4 lg:h-[64px] lg:px-6">
@@ -78,7 +78,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                     </div>
                 </div>
             </div>
-            <div className="flex flex-col bg-transparent">
+            <div className="flex min-h-0 flex-col bg-transparent">
                 <header className="flex h-14 items-center gap-4 border-b border-blue-100 bg-white/70 px-4 backdrop-blur lg:h-[64px] lg:px-6">
                     <Sheet>
                         <SheetTrigger asChild>
