@@ -1,9 +1,7 @@
 'use server'
 
 import { z } from 'zod';
-import path from 'node:path';
-import { randomUUID } from 'node:crypto';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { put } from '@vercel/blob';
 import { loginUser } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
@@ -67,17 +65,13 @@ async function saveNewsImage(file: File): Promise<string | undefined> {
         return undefined;
     }
 
-    const extFromName = path.extname(file.name || '').toLowerCase();
-    const ext = extFromName || '.jpg';
-    const fileName = `${Date.now()}-${randomUUID()}${ext}`;
-    const uploadDir = path.join(process.cwd(), 'public', 'news-images');
-    const filePath = path.join(uploadDir, fileName);
+    const fileName = `news/${Date.now()}-${file.name}`;
 
-    await mkdir(uploadDir, { recursive: true });
-    const bytes = await file.arrayBuffer();
-    await writeFile(filePath, Buffer.from(bytes));
+    const blob = await put(fileName, file, {
+        access: 'public',
+    });
 
-    return `/news-images/${fileName}`;
+    return blob.url; // This is your public image URL
 }
 
 export type FormState = {
