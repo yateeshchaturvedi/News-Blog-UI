@@ -1,6 +1,14 @@
 import { NewsArticle, Blog, Category, Advertisement } from '@/lib/types';
 
-const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000').replace(/\/+$/, '');
+const configuredApiBaseUrl =
+    process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL;
+
+const API_BASE_URL = (
+    configuredApiBaseUrl ||
+    (process.env.NODE_ENV === 'production'
+        ? 'https://news-blog-api-mzxq.onrender.com'
+        : 'http://localhost:3000')
+).replace(/\/+$/, '');
 
 interface ApiArticle {
     id: number | string;
