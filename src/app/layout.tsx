@@ -19,7 +19,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "DevOpsHub Academy - Learn DevOps by Building",
+  title: "DevOpsTic Academy - Learn DevOps by Building",
   description: "Hands-on DevOps learning with practical guides on CI/CD, Kubernetes, cloud, IaC, and observability.",
 };
 
