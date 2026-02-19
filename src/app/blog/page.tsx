@@ -1,6 +1,15 @@
 import NewsCard from "@/components/news-card";
 import { getBlogs } from "@/lib/api";
 import { Blog, NewsArticle } from "@/lib/types";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "DevOps Blog",
+    description: "Read deep dives, engineering notes, and practical DevOps insights from the DevOpsTic team.",
+    alternates: {
+        canonical: "/blog",
+    },
+};
 
 export default async function BlogPage() {
     const blogs = await getBlogs();

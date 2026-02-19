@@ -1,6 +1,15 @@
 import NewsCard from '@/components/news-card';
 import { getEnrichedNews } from './utils';
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'All DevOps Lessons',
+  description: 'Explore all approved DevOps lessons and tutorials by category.',
+  alternates: {
+    canonical: '/news',
+  },
+};
 
 export default async function NewsPage() {
   const news = await getEnrichedNews();

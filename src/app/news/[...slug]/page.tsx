@@ -1,10 +1,12 @@
 
+import type { Metadata } from 'next';
 import { getNews, getNewsArticle } from "@/lib/api";
 import { NewsArticle } from "@/lib/types";
 import NewsCard from "@/components/news-card";
 import Link from "next/link";
 import Image from "next/image";
 import { use } from 'react';
+import { toAbsoluteUrl } from '@/lib/seo';
 
 // Helper function to capitalize the first letter of a string
 function capitalize(str: string) {
@@ -14,6 +16,71 @@ function capitalize(str: string) {
 
 function toCategorySlug(str: string) {
   return str.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string[] }>;
+}): Promise<Metadata> {
+  const resolvedParams = await params;
+  const slug = (resolvedParams.slug || []).map((segment) => decodeURIComponent(segment));
+
+  if (slug.length === 2) {
+    const [categorySlug, articleId] = slug;
+    try {
+      const article = await getNewsArticle(articleId);
+      if (!article) {
+        return {
+          title: 'Lesson Not Found',
+          alternates: { canonical: '/news' },
+          robots: { index: false, follow: true },
+        };
+      }
+
+      const imageUrl = article.imageUrl ? toAbsoluteUrl(article.imageUrl) : undefined;
+      const description = article.summary || article.content?.slice(0, 160) || 'DevOps lesson';
+
+      return {
+        title: article.title,
+        description,
+        alternates: {
+          canonical: `/news/${categorySlug}/${articleId}`,
+        },
+        openGraph: {
+          type: 'article',
+          url: `/news/${categorySlug}/${articleId}`,
+          title: article.title,
+          description,
+          images: imageUrl ? [{ url: imageUrl }] : undefined,
+        },
+        twitter: {
+          card: 'summary_large_image',
+          title: article.title,
+          description,
+          images: imageUrl ? [imageUrl] : undefined,
+        },
+      };
+    } catch {
+      return {
+        title: 'Lesson',
+        alternates: { canonical: `/news/${categorySlug}/${articleId}` },
+      };
+    }
+  }
+
+  if (slug.length === 1) {
+    return {
+      title: `${capitalize(slug[0])} Lessons`,
+      description: `Explore ${capitalize(slug[0])} DevOps lessons and tutorials.`,
+      alternates: { canonical: `/news/${slug[0]}` },
+    };
+  }
+
+  return {
+    title: 'DevOps Lessons',
+    alternates: { canonical: '/news' },
+  };
 }
 
 async function ArticleDetail({ articleId }: { articleId: string }) {
@@ -37,11 +104,36 @@ async function ArticleDetail({ articleId }: { articleId: string }) {
     const displayCategory = article.category_name ? capitalize(article.category_name) : 'Category';
     const publishedDate = article.created_at ?? article.createdAt ?? article.publishedAt;
     const articleContent = article.full_content ?? article.content ?? '';
+    const categorySlug = toCategorySlug(article.category_name || 'general');
+    const articleUrl = toAbsoluteUrl(`/news/${categorySlug}/${article.id}`);
+
+    const articleSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: article.title,
+      datePublished: publishedDate ? new Date(publishedDate).toISOString() : undefined,
+      dateModified: article.updated_at ? new Date(article.updated_at).toISOString() : undefined,
+      author: {
+        '@type': 'Person',
+        name: article.author || 'DevOpsTic Team',
+      },
+      image: article.imageUrl ? [toAbsoluteUrl(article.imageUrl)] : undefined,
+      articleSection: displayCategory,
+      mainEntityOfPage: articleUrl,
+      publisher: {
+        '@type': 'Organization',
+        name: 'DevOpsTic Academy',
+      },
+    };
 
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+        />
         <div className="mb-4">
-            <Link href={`/${toCategorySlug(article.category_name || "general")}`} className="text-blue-500 hover:underline">
+            <Link href={`/news/${toCategorySlug(article.category_name || "general")}`} className="text-blue-500 hover:underline">
               &larr; Back to {displayCategory}
             </Link>
         </div>

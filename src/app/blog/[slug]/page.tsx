@@ -1,18 +1,84 @@
+import type { Metadata } from 'next';
 import { latestNews, trendingNews } from "@/lib/placeholder";
 import Image from "next/image";
 import { use } from 'react';
+import { toAbsoluteUrl } from '@/lib/seo';
+
+function findPostBySlug(slug: string) {
+    const allNews = [...trendingNews, ...latestNews];
+    return allNews.find((p) => p.href === `/blog/${slug}`);
+}
+
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+    const { slug } = await params;
+    const post = findPostBySlug(slug);
+
+    if (!post) {
+        return {
+            title: 'Post Not Found',
+            alternates: { canonical: '/blog' },
+            robots: { index: false, follow: true },
+        };
+    }
+
+    return {
+        title: post.title,
+        description: post.description,
+        alternates: {
+            canonical: `/blog/${slug}`,
+        },
+        openGraph: {
+            type: 'article',
+            url: `/blog/${slug}`,
+            title: post.title,
+            description: post.description,
+            images: [{ url: post.image }],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: post.title,
+            description: post.description,
+            images: [post.image],
+        },
+    };
+}
 
 export default function BlogPostPage({ params: paramsPromise }: { params: Promise<{ slug: string }> }) {
     const params = use(paramsPromise);
-    const allNews = [...trendingNews, ...latestNews];
-    const news = allNews.find(p => p.href === `/blog/${params.slug}`);
+    const news = findPostBySlug(params.slug);
 
     if (!news) {
         return <div className="text-center text-red-500">Learning post not found</div>;
     }
 
+    const articleSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: news.title,
+        description: news.description,
+        datePublished: new Date(news.createdAt).toISOString(),
+        image: [news.image],
+        mainEntityOfPage: toAbsoluteUrl(`/blog/${params.slug}`),
+        author: {
+            '@type': 'Person',
+            name: news.author,
+        },
+        publisher: {
+            '@type': 'Organization',
+            name: 'DevOpsTic Academy',
+        },
+    };
+
     return (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl overflow-hidden">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+            />
             <div className="relative h-[500px]">
                 <Image src={news.image} alt={news.title} layout="fill" objectFit="cover" className="opacity-80" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />

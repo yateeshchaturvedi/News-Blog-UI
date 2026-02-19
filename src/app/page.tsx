@@ -1,8 +1,17 @@
 import NewsCard from '@/components/news-card';
 import { getEnrichedNews } from './news/utils';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Latest DevOps Lessons',
+  description: 'Browse the latest practical DevOps lessons on CI/CD, Kubernetes, cloud infrastructure, and observability.',
+  alternates: {
+    canonical: '/',
+  },
+};
 
 export default async function HomePage() {
   const latestNews = await getEnrichedNews();

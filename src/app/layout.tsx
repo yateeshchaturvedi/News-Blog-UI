@@ -7,6 +7,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { jwtDecode } from "jwt-decode";
 import { logout } from "@/app/actions";
+import { getSiteUrl } from "@/lib/seo";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -19,8 +20,27 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "DevOpsTic Academy - Learn DevOps by Building",
+  metadataBase: new URL(getSiteUrl()),
+  title: {
+    default: "DevOpsTic Academy - Learn DevOps by Building",
+    template: "%s | DevOpsTic Academy",
+  },
   description: "Hands-on DevOps learning with practical guides on CI/CD, Kubernetes, cloud, IaC, and observability.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: "DevOpsTic Academy",
+    title: "DevOpsTic Academy - Learn DevOps by Building",
+    description: "Hands-on DevOps learning with practical guides on CI/CD, Kubernetes, cloud, IaC, and observability.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DevOpsTic Academy - Learn DevOps by Building",
+    description: "Hands-on DevOps learning with practical guides on CI/CD, Kubernetes, cloud, IaC, and observability.",
+  },
 };
 
 interface JwtPayload {

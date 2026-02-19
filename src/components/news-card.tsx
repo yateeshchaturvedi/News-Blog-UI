@@ -10,9 +10,11 @@ export default function NewsCard({ article }: { article: NewsArticle }) {
         ? article.category_name.toLowerCase().replace(/[^a-z0-9]/g, '')
         : 'uncategorized';
     const createdDate = article.created_at ?? article.createdAt ?? article.publishedAt;
+    const isBlog = (article.category_name || '').trim().toLowerCase() === 'blog' || article.category === 'blog';
+    const detailHref = isBlog ? `/blog/${article.id}` : `/news/${categoryUrl}/${article.id}`;
 
     return (
-        <Link href={`/${categoryUrl}/${article.id}`} className="group block animate-fade-up">
+        <Link href={detailHref} className="group block animate-fade-up">
             <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-blue-100/80 bg-white/95 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                 <div className="relative h-52 w-full overflow-hidden">
                     <Image 
