@@ -5,6 +5,7 @@ import { useFormStatus } from 'react-dom';
 import { AlertCircle, PartyPopper, Save, UserRound } from 'lucide-react';
 import { updateProfileByUser, FormState } from '@/app/actions';
 import { UserProfile } from '@/lib/types';
+import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -35,6 +36,19 @@ export default function ProfileForm({ profile }: { profile: UserProfile }) {
                 <CardDescription>Keep your account details up to date.</CardDescription>
             </CardHeader>
             <CardContent>
+                <div className="mb-6 flex items-center gap-4 rounded-lg border border-blue-100 bg-blue-50/40 p-4">
+                    <Image
+                        src={profile.avatarUrl || '/placeholder.svg'}
+                        alt={profile.fullName || profile.username}
+                        width={64}
+                        height={64}
+                        className="h-16 w-16 rounded-full border border-blue-100 object-cover"
+                    />
+                    <div>
+                        <p className="text-base font-semibold text-slate-900">{profile.fullName || profile.username}</p>
+                        <p className="text-sm text-slate-600">{profile.roleName || 'User'}</p>
+                    </div>
+                </div>
                 <form action={formAction} className="space-y-4">
                     {state.message && (
                         <div
