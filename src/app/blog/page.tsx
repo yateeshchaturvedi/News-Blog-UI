@@ -11,13 +11,24 @@ export const metadata: Metadata = {
     },
 };
 
+function stripHtml(content: string): string {
+    return content
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
 export default async function BlogPage() {
     const blogs = await getBlogs();
 
     const articles: NewsArticle[] = blogs.map((blog: Blog) => ({
         id: blog.id,
         title: blog.title,
-        summary: blog.content.substring(0, 100) + "...", // Create a summary
+        summary: stripHtml(blog.content).slice(0, 100) + "...",
         full_content: blog.content,
         imageUrl: "/placeholder.svg", // Use a placeholder image
         category: "blog",

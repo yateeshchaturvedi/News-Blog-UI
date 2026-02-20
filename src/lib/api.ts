@@ -77,6 +77,24 @@ interface ApiUserProfile {
     updatedAt?: string;
 }
 
+function stripHtml(content: string): string {
+    return content
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function summarizeContent(content: string, maxLength = 100): string {
+    const plain = stripHtml(content || '');
+    if (!plain) return '';
+    if (plain.length <= maxLength) return plain;
+    return `${plain.slice(0, maxLength).trimEnd()}...`;
+}
+
 async function fetchAPI(endpoint: string, options: RequestInit = {}, token?: string) {
     const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     const url = `${API_BASE_URL}${normalizedEndpoint}`;
@@ -148,7 +166,7 @@ export const getNews = async (token?: string): Promise<NewsArticle[]> => {
             title: article.title,
             author,
             authorAvatarUrl: article.author_avatar_url || '',
-            summary: article.content ? article.content.substring(0, 100) + '...' : '',
+            summary: summarizeContent(article.content || '', 100),
             content: article.content || '',
             full_content: article.content || '',
             imageUrl: article.imageUrl || article.image_path || article.imagePath || '',
@@ -196,7 +214,7 @@ export const getNewsArticle = async (id: string | number, token?: string): Promi
             title: article.title,
             author,
             authorAvatarUrl: article.author_avatar_url || '',
-            summary: article.content ? article.content.substring(0, 100) + '...' : '',
+            summary: summarizeContent(article.content || '', 100),
             content: article.content || '', // Add this line
             full_content: article.content || '',
             imageUrl: article.imageUrl || article.image_path || article.imagePath || '',
