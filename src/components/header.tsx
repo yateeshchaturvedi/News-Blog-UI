@@ -5,6 +5,7 @@ import { Menu, Search } from "lucide-react";
 import { navLinks } from "@/lib/placeholder";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import NotificationToggle from "@/components/NotificationToggle";
 
 export default function Header() {
     const [searchQuery, setSearchQuery] = useState("");
@@ -33,6 +34,9 @@ export default function Header() {
                     ))}
                 </nav>
                 <div className="flex items-center gap-2 md:gap-4">
+                    <div className="hidden md:block">
+                        <NotificationToggle />
+                    </div>
                     <form onSubmit={handleSearch} className="relative hidden md:block">
                         <input
                             type="text"
@@ -67,6 +71,9 @@ export default function Header() {
                             <Search className="h-4 w-4" />
                         </button>
                     </form>
+                    <div className="mb-4">
+                        <NotificationToggle />
+                    </div>
                     <nav className="grid gap-2">
                         {navLinks.map((link) => (
                             <Link

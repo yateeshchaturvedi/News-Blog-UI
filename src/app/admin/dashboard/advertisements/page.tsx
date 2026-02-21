@@ -26,8 +26,8 @@ export default async function AdvertisementsPage() {
                 >
                     <Input name="title" placeholder="Ad title" required />
                     <Input name="placement" placeholder="homepage-top" defaultValue="homepage-top" required />
-                    <Input name="imageUrl" placeholder="Image URL or /news-images/file.jpg" />
-                    <Input name="linkUrl" placeholder="https://example.com" />
+                    <Input name="imageUrl" placeholder="Media URL (image, .mp4, YouTube URL)" />
+                    <Input name="linkUrl" placeholder="Click-through URL (optional)" />
                     <label className="flex items-center gap-2 text-sm text-slate-700">
                         <input type="checkbox" name="isActive" defaultChecked />
                         Active
@@ -52,8 +52,8 @@ export default async function AdvertisementsPage() {
                         >
                             <Input name="title" defaultValue={ad.title} required />
                             <Input name="placement" defaultValue={ad.placement || 'homepage-top'} required />
-                            <Input name="imageUrl" defaultValue={ad.imageUrl || ''} placeholder="Image URL" />
-                            <Input name="linkUrl" defaultValue={ad.linkUrl || ''} placeholder="Link URL" />
+                            <Input name="imageUrl" defaultValue={ad.imageUrl || ''} placeholder="Media URL (image, .mp4, YouTube URL)" />
+                            <Input name="linkUrl" defaultValue={ad.linkUrl || ''} placeholder="Click-through URL (optional)" />
                             <label className="flex items-center gap-2 text-sm text-slate-700">
                                 <input type="checkbox" name="isActive" defaultChecked={ad.isActive ?? true} />
                                 Active
