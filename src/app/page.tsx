@@ -2,6 +2,7 @@ import NewsCard from '@/components/news-card';
 import { getEnrichedNews } from './news/utils';
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import PublicAdSlot from '@/components/PublicAdSlot';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,6 +43,10 @@ export default async function HomePage() {
           <p>No lessons found yet.</p>
         </div>
       )}
+
+      <section>
+        <PublicAdSlot placement="homepage-top" title="Sponsored" />
+      </section>
     </div>
   );
 }

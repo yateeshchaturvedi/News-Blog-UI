@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { use } from 'react';
 import { toAbsoluteUrl } from '@/lib/seo';
+import PublicAdSlot from '@/components/PublicAdSlot';
 
 // Helper function to capitalize the first letter of a string
 function capitalize(str: string) {
@@ -156,6 +157,9 @@ async function ArticleDetail({ articleId }: { articleId: string }) {
         </p>
         {article.imageUrl && <Image src={article.imageUrl} alt={article.title} width={800} height={400} className="w-full h-auto object-cover rounded-lg mb-8" />}
         <div className="lesson-content max-w-none" dangerouslySetInnerHTML={{ __html: articleContent }}></div>
+        <div className="mt-8">
+          <PublicAdSlot placement="lesson-detail" title="Sponsored" />
+        </div>
       </div>
     );
 }

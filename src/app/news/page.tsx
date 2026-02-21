@@ -2,6 +2,7 @@ import NewsCard from '@/components/news-card';
 import { getEnrichedNews } from './utils';
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import PublicAdSlot from '@/components/PublicAdSlot';
 
 export const metadata: Metadata = {
   title: 'All DevOps Lessons',
@@ -34,6 +35,8 @@ export default async function NewsPage() {
                 <p>No lessons were found.</p>
             </div>
         )}
+
+        <PublicAdSlot placement="news-sidebar" title="Sponsored" />
     </div>
   );
 }

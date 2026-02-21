@@ -3,6 +3,7 @@ import { latestNews, trendingNews } from "@/lib/placeholder";
 import Image from "next/image";
 import { use } from 'react';
 import { toAbsoluteUrl } from '@/lib/seo';
+import PublicAdSlot from '@/components/PublicAdSlot';
 
 function findPostBySlug(slug: string) {
     const allNews = [...trendingNews, ...latestNews];
@@ -99,7 +100,7 @@ export default function BlogPostPage({ params: paramsPromise }: { params: Promis
                     <p>Pair each lesson with a small lab, expected outcomes, and troubleshooting notes so learners can build confidence by executing real workflows instead of only reading theory.</p>
                 </div>
                 <div className="mt-12 p-6 bg-gray-50 dark:bg-gray-700 rounded-xl text-center">
-                    <p className="text-gray-500 dark:text-gray-400">Advertisement</p>
+                    <PublicAdSlot placement="blog-detail" title="Sponsored" />
                 </div>
             </div>
         </div>

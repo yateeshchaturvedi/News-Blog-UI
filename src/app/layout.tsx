@@ -8,6 +8,7 @@ import { cookies } from "next/headers";
 import { jwtDecode } from "jwt-decode";
 import { logout } from "@/app/actions";
 import { getSiteUrl } from "@/lib/seo";
+import PublicAdSlot from "@/components/PublicAdSlot";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -100,6 +101,9 @@ export default async function RootLayout({
         )}
         <Header />
         <main className="mx-auto w-full max-w-[1240px] px-4 py-8 md:px-6 md:py-10">{children}</main>
+        <section className="mx-auto w-full max-w-[1240px] px-4 pb-8 md:px-6">
+          <PublicAdSlot placement="site-footer" title="Sponsored" />
+        </section>
         <Footer />
       </body>
     </html>

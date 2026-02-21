@@ -2,6 +2,7 @@ import NewsCard from "@/components/news-card";
 import { getBlogs } from "@/lib/api";
 import { Blog, NewsArticle } from "@/lib/types";
 import type { Metadata } from "next";
+import PublicAdSlot from "@/components/PublicAdSlot";
 
 export const metadata: Metadata = {
     title: "DevOps Blog",
@@ -48,6 +49,7 @@ export default async function BlogPage() {
                     <NewsCard key={article.id} article={article} />
                 ))}
             </div>
+            <PublicAdSlot placement="blog-sidebar" title="Sponsored" />
         </div>
     );
 }

@@ -1,10 +1,11 @@
 'use client'
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { useFormStatus } from "react-dom";
 import { login, FormState } from "@/app/actions";
 import { Lock, User, LogIn, AlertCircle, LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 const initialState: FormState = {
   message: "",
@@ -36,9 +37,30 @@ function SubmitButton() {
 
 export default function AdminLoginPage() {
   const [state, formAction] = useActionState(login, initialState);
+  const searchParams = useSearchParams();
+  const [dismissedSessionPopup, setDismissedSessionPopup] = useState(false);
+  const showSessionExpiredPopup =
+    searchParams.get('session') === 'expired' && !dismissedSessionPopup;
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        {showSessionExpiredPopup && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+                <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-2xl">
+                    <h3 className="text-lg font-semibold text-slate-900">Session Expired</h3>
+                    <p className="mt-2 text-sm text-slate-600">
+                        Your session has expired. Please log in again.
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => setDismissedSessionPopup(true)}
+                        className="mt-5 w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                    >
+                        OK
+                    </button>
+                </div>
+            </div>
+        )}
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 opacity-20 dark:opacity-30"></div>
         <div className="relative max-w-md w-full space-y-8 bg-white dark:bg-gray-800/80 backdrop-blur-sm p-10 rounded-2xl shadow-2xl">
             <div className="text-center">

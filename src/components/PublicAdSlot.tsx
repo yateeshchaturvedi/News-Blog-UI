@@ -1,0 +1,54 @@
+import Link from 'next/link';
+import Image from 'next/image';
+import { getAdvertisements } from '@/lib/api';
+
+export default async function PublicAdSlot({
+    placement,
+    title = 'Sponsored',
+}: {
+    placement?: string;
+    title?: string;
+}) {
+    const ads = await getAdvertisements();
+    const activeAds = ads.filter((ad) => ad.isActive !== false);
+
+    if (activeAds.length === 0) {
+        return null;
+    }
+
+    const normalizedPlacement = (placement || '').trim().toLowerCase();
+    const matchedAds = normalizedPlacement
+        ? activeAds.filter((ad) => (ad.placement || '').trim().toLowerCase() === normalizedPlacement)
+        : activeAds;
+
+    const adToShow = matchedAds[0] || activeAds[0];
+    if (!adToShow) return null;
+
+    const adContent = (
+        <div className="overflow-hidden rounded-2xl border border-blue-100 bg-white/90 shadow-sm">
+            {adToShow.imageUrl ? (
+                <Image
+                    src={adToShow.imageUrl}
+                    alt={adToShow.title}
+                    width={1200}
+                    height={360}
+                    className="h-48 w-full object-cover"
+                />
+            ) : null}
+            <div className="p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{title}</p>
+                <p className="mt-1 text-sm font-semibold text-slate-900">{adToShow.title}</p>
+            </div>
+        </div>
+    );
+
+    if (adToShow.linkUrl) {
+        return (
+            <Link href={adToShow.linkUrl} target="_blank" rel="noopener noreferrer" className="block">
+                {adContent}
+            </Link>
+        );
+    }
+
+    return adContent;
+}
