@@ -1,7 +1,7 @@
 'use client'
 
 import { Bell } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function base64ToUint8Array(base64String: string) {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -24,6 +24,7 @@ const apiBaseUrl = (
 export default function NotificationToggle() {
     const [busy, setBusy] = useState(false);
     const [message, setMessage] = useState('');
+    const [isSubscribed, setIsSubscribed] = useState(false);
 
     const isSupported =
         typeof window !== 'undefined' &&
@@ -34,6 +35,29 @@ export default function NotificationToggle() {
     if (!isSupported) return null;
 
     const isGranted = Notification.permission === 'granted';
+
+    useEffect(() => {
+        let mounted = true;
+
+        async function loadSubscriptionState() {
+            try {
+                const registration = await navigator.serviceWorker.getRegistration('/sw.js');
+                if (!registration) {
+                    if (mounted) setIsSubscribed(false);
+                    return;
+                }
+                const existingSubscription = await registration.pushManager.getSubscription();
+                if (mounted) setIsSubscribed(Boolean(existingSubscription));
+            } catch {
+                if (mounted) setIsSubscribed(false);
+            }
+        }
+
+        loadSubscriptionState();
+        return () => {
+            mounted = false;
+        };
+    }, []);
 
     const enableNotifications = async () => {
         try {
@@ -48,7 +72,8 @@ export default function NotificationToggle() {
 
             const keyRes = await fetch(`${apiBaseUrl}/api/notifications/public-key`);
             if (!keyRes.ok) {
-                throw new Error('Notification service is not available.');
+                const body = await keyRes.json().catch(() => ({}));
+                throw new Error(body?.msg || body?.message || 'Notification service is not available.');
             }
             const { publicKey } = await keyRes.json();
             if (!publicKey) {
@@ -70,9 +95,11 @@ export default function NotificationToggle() {
                 body: JSON.stringify(subscription),
             });
             if (!subscribeRes.ok) {
-                throw new Error('Failed to subscribe.');
+                const body = await subscribeRes.json().catch(() => ({}));
+                throw new Error(body?.msg || body?.message || 'Failed to subscribe.');
             }
 
+            setIsSubscribed(true);
             setMessage('Notifications enabled.');
         } catch (error) {
             setMessage(error instanceof Error ? error.message : 'Failed to enable notifications.');
@@ -86,13 +113,13 @@ export default function NotificationToggle() {
             <button
                 type="button"
                 onClick={enableNotifications}
-                disabled={busy || isGranted}
+                disabled={busy || isSubscribed}
                 className="rounded-full border border-blue-100 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition-colors hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-70"
-                title={isGranted ? 'Notifications already enabled' : 'Enable notifications'}
+                title={isSubscribed ? 'Notifications already enabled' : 'Enable notifications'}
             >
                 <span className="inline-flex items-center gap-1">
                     <Bell className="h-3.5 w-3.5" />
-                    {isGranted ? 'Alerts On' : busy ? 'Enabling...' : 'Enable Alerts'}
+                    {isSubscribed ? 'Alerts On' : busy ? 'Enabling...' : isGranted ? 'Connect Alerts' : 'Enable Alerts'}
                 </span>
             </button>
             {message ? (

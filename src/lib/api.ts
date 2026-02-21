@@ -50,6 +50,7 @@ interface ApiAdvertisement {
     id: number | string;
     title: string;
     imageUrl?: string;
+    image_url?: string;
     image_path?: string;
     imagePath?: string;
     linkUrl?: string;
@@ -364,7 +365,7 @@ export const getAdvertisements = async (token?: string): Promise<Advertisement[]
             return ads.map((ad: ApiAdvertisement) => ({
                 id: ad.id,
                 title: ad.title,
-                imageUrl: ad.imageUrl || ad.image_path || ad.imagePath || '',
+                imageUrl: ad.imageUrl || ad.image_url || ad.image_path || ad.imagePath || '',
                 linkUrl: ad.linkUrl || ad.link_url || '',
                 placement: ad.placement || 'homepage',
                 isActive: ad.isActive ?? ad.is_active ?? true,

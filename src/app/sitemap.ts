@@ -1,10 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { getBlogs, getNews } from '@/lib/api';
 import { getSiteUrl } from '@/lib/seo';
-
-function toCategorySlug(str: string) {
-  return str.toLowerCase().replace(/[^a-z0-9]/g, '');
-}
+import { toCategorySlug, toLessonSlug } from '@/lib/lesson-path';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
@@ -41,7 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const categorySlug = toCategorySlug(article.category_name || 'general');
       const articleDate = article.updated_at || article.created_at || article.publishedAt;
       return {
-        url: `${siteUrl}/news/${categorySlug}/${article.id}`,
+        url: `${siteUrl}/lessons/${categorySlug}/${toLessonSlug(article.title || '')}`,
         lastModified: articleDate ? new Date(articleDate) : now,
         changeFrequency: 'monthly' as const,
         priority: 0.8,

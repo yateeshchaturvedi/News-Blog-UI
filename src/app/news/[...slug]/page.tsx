@@ -8,6 +8,8 @@ import Image from "next/image";
 import { use } from 'react';
 import { toAbsoluteUrl } from '@/lib/seo';
 import PublicAdSlot from '@/components/PublicAdSlot';
+import { redirect } from 'next/navigation';
+import { toLessonSlug } from '@/lib/lesson-path';
 
 // Helper function to capitalize the first letter of a string
 function capitalize(str: string) {
@@ -85,83 +87,21 @@ export async function generateMetadata({
 }
 
 async function ArticleDetail({ articleId }: { articleId: string }) {
-    let article: NewsArticle | undefined = undefined;
-    let error = null;
+  let article: NewsArticle | undefined;
 
-    try {
-      article = await getNewsArticle(articleId);
-    } catch (e: unknown) {
-      error = e instanceof Error ? e.message : "An unexpected error occurred.";
-    }
+  try {
+    article = await getNewsArticle(articleId);
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e.message : 'An unexpected error occurred.';
+    return <div className="text-center text-red-500"><p>Error loading lesson: {error}</p></div>;
+  }
 
-    if (error) {
-      return <div className="text-center text-red-500"><p>Error loading lesson: {error}</p></div>;
-    }
+  if (!article) {
+    return <div className="text-center"><p>Lesson not found.</p></div>;
+  }
 
-    if (!article) {
-      return <div className="text-center"><p>Lesson not found.</p></div>;
-    }
-
-    const displayCategory = article.category_name ? capitalize(article.category_name) : 'Category';
-    const publishedDate = article.created_at ?? article.createdAt ?? article.publishedAt;
-    const articleContent = article.full_content ?? article.content ?? '';
-    const categorySlug = toCategorySlug(article.category_name || 'general');
-    const articleUrl = toAbsoluteUrl(`/news/${categorySlug}/${article.id}`);
-
-    const articleSchema = {
-      '@context': 'https://schema.org',
-      '@type': 'Article',
-      headline: article.title,
-      datePublished: publishedDate ? new Date(publishedDate).toISOString() : undefined,
-      dateModified: article.updated_at ? new Date(article.updated_at).toISOString() : undefined,
-      author: {
-        '@type': 'Person',
-        name: article.author || 'DevOpsTic Team',
-      },
-      image: article.imageUrl ? [toAbsoluteUrl(article.imageUrl)] : undefined,
-      articleSection: displayCategory,
-      mainEntityOfPage: articleUrl,
-      publisher: {
-        '@type': 'Organization',
-        name: 'DevOpsTic Academy',
-      },
-    };
-
-    return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
-        />
-        <div className="mb-4">
-            <Link href={`/news/${toCategorySlug(article.category_name || "general")}`} className="text-blue-500 hover:underline">
-              &larr; Back to {displayCategory}
-            </Link>
-        </div>
-        <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">{article.title}</h1>
-        <div className="mb-3 flex items-center gap-2">
-          <Image
-            src={article.authorAvatarUrl || '/placeholder.svg'}
-            alt={article.author || 'Author'}
-            width={20}
-            height={20}
-            className="h-5 w-5 rounded-full object-cover"
-          />
-          <span className="text-xs text-gray-500 dark:text-gray-400">
-            Written by {article.author || 'Unknown author'}
-          </span>
-        </div>
-        <p className="text-lg text-gray-600 dark:text-gray-300 mb-2">{displayCategory}</p>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
-          Published on: {publishedDate ? new Date(publishedDate).toLocaleDateString() : 'N/A'}
-        </p>
-        {article.imageUrl && <Image src={article.imageUrl} alt={article.title} width={800} height={400} className="w-full h-auto object-cover rounded-lg mb-8" />}
-        <div className="lesson-content max-w-none" dangerouslySetInnerHTML={{ __html: articleContent }}></div>
-        <div className="mt-8">
-          <PublicAdSlot placement="lesson-detail" title="Sponsored" />
-        </div>
-      </div>
-    );
+  const lessonUrl = `/lessons/${toCategorySlug(article.category_name || 'general')}/${toLessonSlug(article.title || '')}`;
+  redirect(lessonUrl);
 }
 
 async function CategoryList({ categoryName }: { categoryName: string }) {

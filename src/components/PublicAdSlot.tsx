@@ -22,6 +22,10 @@ function isVideoFileUrl(url: string) {
     return /\.(mp4|webm|ogg)(\?|#|$)/i.test(url);
 }
 
+function isImageFileUrl(url: string) {
+    return /\.(jpg|jpeg|png|webp|gif|avif|svg)(\?|#|$)/i.test(url);
+}
+
 function isVercelBlobUrl(url: string) {
     return /https:\/\/.*\.public\.blob\.vercel-storage\.com\//i.test(url);
 }
@@ -61,6 +65,9 @@ export default async function PublicAdSlot({
             : linkUrl && isVideoFileUrl(linkUrl)
                 ? linkUrl
                 : null;
+    const imageUrl =
+        mediaUrl ||
+        (linkUrl && (isImageFileUrl(linkUrl) || isVercelBlobUrl(linkUrl)) ? linkUrl : '');
 
     const adContent = (
         <div className="overflow-hidden rounded-2xl border border-blue-100 bg-white/90 shadow-sm">
@@ -80,19 +87,18 @@ export default async function PublicAdSlot({
                     muted
                     playsInline
                 />
-            ) : mediaUrl ? (
-                isVercelBlobUrl(mediaUrl) ? (
+            ) : imageUrl ? (
+                isVercelBlobUrl(imageUrl) ? (
                     <Image
-                        src={mediaUrl}
+                        src={imageUrl}
                         alt={adToShow.title}
                         width={1200}
                         height={360}
                         className="h-48 w-full object-cover"
                     />
                 ) : (
-                    // Fallback for non-blob image hosts currently stored in ad data.
                     <img
-                        src={mediaUrl}
+                        src={imageUrl}
                         alt={adToShow.title}
                         className="h-48 w-full object-cover"
                     />

@@ -1,17 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
 import { NewsArticle } from "@/lib/types";
+import { buildLessonHref } from "@/lib/lesson-path";
 
 export default function NewsCard({ article }: { article: NewsArticle }) {
     const placeholderImage = "/placeholder.svg";
 
     const category = article.category_name || 'general';
-    const categoryUrl = article.category_name
-        ? article.category_name.toLowerCase().replace(/[^a-z0-9]/g, '')
-        : 'uncategorized';
     const createdDate = article.created_at ?? article.createdAt ?? article.publishedAt;
     const isBlog = (article.category_name || '').trim().toLowerCase() === 'blog' || article.category === 'blog';
-    const detailHref = isBlog ? `/blog/${article.id}` : `/news/${categoryUrl}/${article.id}`;
+    const detailHref = isBlog ? `/blog/${article.id}` : buildLessonHref(article);
 
     return (
         <Link href={detailHref} className="group block animate-fade-up">
@@ -42,7 +40,9 @@ export default function NewsCard({ article }: { article: NewsArticle }) {
                             />
                             <span className="text-[11px] font-medium text-slate-500">{article.author || 'Unknown author'}</span>
                         </div>
-                        <span className="text-xs font-semibold text-blue-700 transition-transform group-hover:translate-x-0.5">Start lesson</span>
+                        <span className="text-xs font-semibold text-blue-700 transition-transform group-hover:translate-x-0.5">
+                            Start lesson
+                        </span>
                     </div>
                     <span className="mt-1 text-[11px] text-slate-400">
                         {createdDate ? new Date(createdDate).toLocaleDateString() : 'N/A'}
