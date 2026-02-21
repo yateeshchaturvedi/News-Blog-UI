@@ -122,18 +122,47 @@ export default function NotificationToggle() {
         }
     };
 
+    const disableNotifications = async () => {
+        try {
+            setBusy(true);
+            setToast(null);
+
+            const registration = await navigator.serviceWorker.ready;
+            const subscription = await registration.pushManager.getSubscription();
+
+            if (subscription) {
+                await fetch(`${apiBaseUrl}/api/notifications/unsubscribe`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ endpoint: subscription.endpoint }),
+                });
+                await subscription.unsubscribe();
+            }
+
+            setIsSubscribed(false);
+            setToast({ text: 'Notifications disabled.', type: 'success' });
+        } catch (error) {
+            setToast({
+                text: error instanceof Error ? error.message : 'Failed to disable notifications.',
+                type: 'error',
+            });
+        } finally {
+            setBusy(false);
+        }
+    };
+
     return (
         <div className="relative">
             <button
                 type="button"
-                onClick={enableNotifications}
-                disabled={busy || isSubscribed}
+                onClick={isSubscribed ? disableNotifications : enableNotifications}
+                disabled={busy}
                 className="rounded-full border border-blue-100 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition-colors hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-70"
-                title={isSubscribed ? 'Notifications already enabled' : 'Enable notifications'}
+                title={isSubscribed ? 'Disable notifications' : 'Enable notifications'}
             >
                 <span className="inline-flex items-center gap-1">
                     <Bell className="h-3.5 w-3.5" />
-                    {isSubscribed ? 'Alerts On' : busy ? 'Enabling...' : isGranted ? 'Connect Alerts' : 'Enable Alerts'}
+                    {isSubscribed ? (busy ? 'Disabling...' : 'Disable Alerts') : busy ? 'Enabling...' : isGranted ? 'Connect Alerts' : 'Enable Alerts'}
                 </span>
             </button>
             {toast ? (

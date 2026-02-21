@@ -33,9 +33,11 @@ function isVercelBlobUrl(url: string) {
 export default async function PublicAdSlot({
     placement,
     title = 'Sponsored',
+    compact = false,
 }: {
     placement?: string;
     title?: string;
+    compact?: boolean;
 }) {
     const ads = await getAdvertisements();
     const activeAds = ads.filter((ad) => ad.isActive !== false);
@@ -48,6 +50,10 @@ export default async function PublicAdSlot({
     const matchedAds = normalizedPlacement
         ? activeAds.filter((ad) => (ad.placement || '').trim().toLowerCase() === normalizedPlacement)
         : activeAds;
+
+    if (normalizedPlacement && matchedAds.length === 0) {
+        return null;
+    }
 
     const adToShow = matchedAds[0] || activeAds[0];
     if (!adToShow) return null;
@@ -70,19 +76,19 @@ export default async function PublicAdSlot({
         (linkUrl && (isImageFileUrl(linkUrl) || isVercelBlobUrl(linkUrl)) ? linkUrl : '');
 
     const adContent = (
-        <div className="overflow-hidden rounded-2xl border border-blue-100 bg-white/90 shadow-sm">
+        <div className={`overflow-hidden rounded-2xl border border-blue-100 bg-white/90 shadow-sm ${compact ? 'max-w-xs' : ''}`}>
             {youtubeEmbedUrl ? (
                 <iframe
                     src={youtubeEmbedUrl}
                     title={adToShow.title}
-                    className="h-56 w-full"
+                    className={`${compact ? 'h-36' : 'h-56'} w-full`}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                 />
             ) : videoUrl ? (
                 <video
                     src={videoUrl}
-                    className="h-56 w-full object-cover"
+                    className={`${compact ? 'h-36' : 'h-56'} w-full object-cover`}
                     controls
                     muted
                     playsInline
@@ -94,19 +100,19 @@ export default async function PublicAdSlot({
                         alt={adToShow.title}
                         width={1200}
                         height={360}
-                        className="h-48 w-full object-cover"
+                        className={`${compact ? 'h-32' : 'h-48'} w-full object-cover`}
                     />
                 ) : (
                     <img
                         src={imageUrl}
                         alt={adToShow.title}
-                        className="h-48 w-full object-cover"
+                        className={`${compact ? 'h-32' : 'h-48'} w-full object-cover`}
                     />
                 )
             ) : null}
-            <div className="p-4">
+            <div className={compact ? 'p-3' : 'p-4'}>
                 <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{title}</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">{adToShow.title}</p>
+                <p className={`${compact ? 'text-xs' : 'text-sm'} mt-1 font-semibold text-slate-900`}>{adToShow.title}</p>
             </div>
         </div>
     );
