@@ -23,8 +23,8 @@ const apiBaseUrl = (
 
 export default function NotificationToggle() {
     const [busy, setBusy] = useState(false);
-    const [message, setMessage] = useState('');
     const [isSubscribed, setIsSubscribed] = useState(false);
+    const [toast, setToast] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
     const isSupported =
         typeof window !== 'undefined' &&
@@ -59,14 +59,20 @@ export default function NotificationToggle() {
         };
     }, []);
 
+    useEffect(() => {
+        if (!toast) return;
+        const timer = window.setTimeout(() => setToast(null), 3000);
+        return () => window.clearTimeout(timer);
+    }, [toast]);
+
     const enableNotifications = async () => {
         try {
             setBusy(true);
-            setMessage('');
+            setToast(null);
 
             const permission = await Notification.requestPermission();
             if (permission !== 'granted') {
-                setMessage('Notification permission not granted.');
+                setToast({ text: 'Notification permission not granted.', type: 'error' });
                 return;
             }
 
@@ -80,7 +86,12 @@ export default function NotificationToggle() {
                 throw new Error('Public key unavailable.');
             }
 
-            const registration = await navigator.serviceWorker.register('/sw.js');
+            await navigator.serviceWorker.register('/sw.js');
+            const registration = await navigator.serviceWorker.ready;
+            if (!registration.active) {
+                throw new Error('Service worker is not active yet. Please retry in a moment.');
+            }
+
             const existingSubscription = await registration.pushManager.getSubscription();
             const subscription =
                 existingSubscription ||
@@ -100,9 +111,12 @@ export default function NotificationToggle() {
             }
 
             setIsSubscribed(true);
-            setMessage('Notifications enabled.');
+            setToast({ text: 'Notifications enabled.', type: 'success' });
         } catch (error) {
-            setMessage(error instanceof Error ? error.message : 'Failed to enable notifications.');
+            setToast({
+                text: error instanceof Error ? error.message : 'Failed to enable notifications.',
+                type: 'error',
+            });
         } finally {
             setBusy(false);
         }
@@ -122,8 +136,18 @@ export default function NotificationToggle() {
                     {isSubscribed ? 'Alerts On' : busy ? 'Enabling...' : isGranted ? 'Connect Alerts' : 'Enable Alerts'}
                 </span>
             </button>
-            {message ? (
-                <p className="absolute right-0 mt-1 max-w-[220px] text-[11px] text-slate-600">{message}</p>
+            {toast ? (
+                <div
+                    className={`fixed right-4 top-20 z-[100] max-w-xs rounded-lg border px-3 py-2 text-xs shadow-lg ${
+                        toast.type === 'success'
+                            ? 'border-green-200 bg-green-50 text-green-800'
+                            : 'border-red-200 bg-red-50 text-red-800'
+                    }`}
+                    role="status"
+                    aria-live="polite"
+                >
+                    {toast.text}
+                </div>
             ) : null}
         </div>
     );
