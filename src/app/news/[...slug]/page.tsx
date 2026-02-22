@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { use } from 'react';
 import { toAbsoluteUrl } from '@/lib/seo';
+import { normalizeCanonicalPath } from '@/lib/seo';
 import PublicAdSlot from '@/components/PublicAdSlot';
 import { redirect } from 'next/navigation';
 import { toLessonSlug } from '@/lib/lesson-path';
@@ -48,7 +49,7 @@ export async function generateMetadata({
         title: article.title,
         description,
         alternates: {
-          canonical: `/news/${categorySlug}/${articleId}`,
+          canonical: normalizeCanonicalPath(`/news/${categorySlug}/${articleId}`),
         },
         openGraph: {
           type: 'article',
@@ -67,7 +68,7 @@ export async function generateMetadata({
     } catch {
       return {
         title: 'Lesson',
-        alternates: { canonical: `/news/${categorySlug}/${articleId}` },
+        alternates: { canonical: normalizeCanonicalPath(`/news/${categorySlug}/${articleId}`) },
       };
     }
   }
@@ -76,7 +77,7 @@ export async function generateMetadata({
     return {
       title: `${capitalize(slug[0])} Lessons`,
       description: `Explore ${capitalize(slug[0])} DevOps lessons and tutorials.`,
-      alternates: { canonical: `/news/${slug[0]}` },
+      alternates: { canonical: normalizeCanonicalPath(`/news/${slug[0]}`) },
     };
   }
 

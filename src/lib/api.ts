@@ -435,6 +435,12 @@ export const updateMyProfile = (
 ): Promise<UserProfile> =>
     fetchAPI('api/auth/me', { method: 'PUT', body: JSON.stringify(data) }, token);
 
+export const deleteMyAccount = (
+    data: { currentPassword: string },
+    token: string
+): Promise<{ msg: string }> =>
+    fetchAPI('api/auth/me', { method: 'DELETE', body: JSON.stringify(data) }, token);
+
 // Categories
 export const getCategories = (token?: string): Promise<Category[]> => fetchAPI('api/categories/', {}, token);
 export const createCategory = (data: Partial<Category>, token: string): Promise<Category> => fetchAPI('api/categories/', { method: 'POST', body: JSON.stringify(data) }, token);
@@ -521,4 +527,5 @@ export const deleteAdvertisement = async (id: string | number, token: string): P
 };
 
 // Contact
-export const submitContact = (data: Record<string, unknown>) => fetchAPI('api/contact/', { method: 'POST', body: JSON.stringify(data) });
+export const submitContact = (data: { name: string; email: string; message: string; website?: string; captcha: string }) =>
+    fetchAPI('api/contact/', { method: 'POST', body: JSON.stringify(data) });

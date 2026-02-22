@@ -4,12 +4,14 @@ import { Blog, NewsArticle } from "@/lib/types";
 import type { Metadata } from "next";
 import PublicAdSlot from "@/components/PublicAdSlot";
 import Link from "next/link";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import { normalizeCanonicalPath } from "@/lib/seo";
 
 export const metadata: Metadata = {
     title: "DevOps Blog",
     description: "Read deep dives, engineering notes, and practical DevOps insights from the DevOpsTic team.",
     alternates: {
-        canonical: "/blog",
+        canonical: normalizeCanonicalPath("/blog"),
     },
 };
 
@@ -47,9 +49,15 @@ export default async function BlogPage({
 
     return (
         <div className="space-y-8">
+            <Breadcrumbs items={[{ name: 'Home', href: '/' }, { name: 'Blog' }]} />
             <div className="animate-fade-up rounded-2xl border border-blue-100 bg-white/85 p-6 shadow-sm">
                 <h1 className="text-4xl font-semibold text-slate-900">DevOpsTic Blog</h1>
                 <p className="mt-3 text-lg text-slate-600">Deep dives, engineering notes, and team practices from real DevOps environments.</p>
+                <div className="mt-4">
+                    <Link href="/authors" className="rounded-full border border-blue-100 px-4 py-2 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-50">
+                        Browse Authors
+                    </Link>
+                </div>
             </div>
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
                 {articles.map((article: NewsArticle) => (

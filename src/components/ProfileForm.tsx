@@ -3,7 +3,7 @@
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { AlertCircle, PartyPopper, Save, UserRound } from 'lucide-react';
-import { updateProfileByUser, FormState } from '@/app/actions';
+import { deleteAccountByUser, updateProfileByUser, FormState } from '@/app/actions';
 import { UserProfile } from '@/lib/types';
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,6 +25,7 @@ function SaveProfileButton() {
 
 export default function ProfileForm({ profile }: { profile: UserProfile }) {
     const [state, formAction] = useActionState(updateProfileByUser, initialState);
+    const [deleteState, deleteAction] = useActionState(deleteAccountByUser, initialState);
 
     return (
         <Card className="border-blue-100 bg-white/90 shadow-sm">
@@ -127,6 +128,25 @@ export default function ProfileForm({ profile }: { profile: UserProfile }) {
                         <SaveProfileButton />
                     </div>
                 </form>
+
+                <div className="mt-10 rounded-lg border border-red-200 bg-red-50/70 p-4">
+                    <h3 className="text-sm font-semibold text-red-800">Delete Account</h3>
+                    <p className="mt-1 text-xs text-red-700">
+                        This permanently removes your account and authored content. Type <code>DELETE</code> to confirm.
+                    </p>
+                    <form action={deleteAction} className="mt-3 space-y-3">
+                        {deleteState.message && (
+                            <p className="text-xs font-medium text-red-700">{deleteState.message}</p>
+                        )}
+                        <div className="grid gap-3 sm:grid-cols-2">
+                            <Input name="currentPasswordConfirm" type="password" placeholder="Current password" required />
+                            <Input name="confirmationText" placeholder='Type "DELETE"' required />
+                        </div>
+                        <Button type="submit" variant="destructive" className="w-full sm:w-auto">
+                            Permanently Delete Account
+                        </Button>
+                    </form>
+                </div>
             </CardContent>
         </Card>
     );

@@ -2,8 +2,9 @@ import type { Metadata } from 'next';
 import { latestNews, trendingNews } from "@/lib/placeholder";
 import Image from "next/image";
 import { use } from 'react';
-import { toAbsoluteUrl } from '@/lib/seo';
+import { normalizeCanonicalPath, toAbsoluteUrl } from '@/lib/seo';
 import PublicAdSlot from '@/components/PublicAdSlot';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 function findPostBySlug(slug: string) {
     const allNews = [...trendingNews, ...latestNews];
@@ -30,7 +31,7 @@ export async function generateMetadata({
         title: post.title,
         description: post.description,
         alternates: {
-            canonical: `/blog/${slug}`,
+            canonical: normalizeCanonicalPath(`/blog/${slug}`),
         },
         openGraph: {
             type: 'article',
@@ -76,6 +77,15 @@ export default function BlogPostPage({ params: paramsPromise }: { params: Promis
 
     return (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl overflow-hidden">
+            <div className="px-6 pt-6">
+                <Breadcrumbs
+                    items={[
+                        { name: 'Home', href: '/' },
+                        { name: 'Blog', href: '/blog' },
+                        { name: news.title },
+                    ]}
+                />
+            </div>
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}

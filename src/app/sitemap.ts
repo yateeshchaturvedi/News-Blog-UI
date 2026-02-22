@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { getBlogs, getNews } from '@/lib/api';
 import { getSiteUrl } from '@/lib/seo';
-import { toCategorySlug, toLessonSlug } from '@/lib/lesson-path';
+import { toAuthorSlug, toCategorySlug, toLessonSlug } from '@/lib/lesson-path';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
@@ -11,7 +11,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${siteUrl}/`, lastModified: now, changeFrequency: 'daily', priority: 1 },
     { url: `${siteUrl}/news`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
     { url: `${siteUrl}/blog`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${siteUrl}/topics`, lastModified: now, changeFrequency: 'weekly', priority: 0.75 },
+    { url: `${siteUrl}/authors`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${siteUrl}/contact`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${siteUrl}/privacy`, lastModified: now, changeFrequency: 'yearly', priority: 0.4 },
+    { url: `${siteUrl}/terms`, lastModified: now, changeFrequency: 'yearly', priority: 0.4 },
+    { url: `${siteUrl}/data-retention`, lastModified: now, changeFrequency: 'yearly', priority: 0.4 },
   ];
 
   try {
@@ -34,6 +39,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
+    const topicHubUrls = Array.from(
+      new Set(
+        approvedNews
+          .map((article) => article.category_name)
+          .filter((value): value is string => Boolean(value))
+          .map((categoryName) => `${siteUrl}/topics/${toCategorySlug(categoryName)}`)
+      )
+    ).map((url) => ({
+      url,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.75,
+    }));
+
+    const authorUrls = Array.from(
+      new Set(
+        approvedNews
+          .map((article) => article.author)
+          .filter((value): value is string => Boolean(value))
+          .map((authorName) => `${siteUrl}/authors/${toAuthorSlug(authorName)}`)
+      )
+    ).map((url) => ({
+      url,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.65,
+    }));
+
     const articleUrls = approvedNews.map((article) => {
       const categorySlug = toCategorySlug(article.category_name || 'general');
       const articleDate = article.updated_at || article.created_at || article.publishedAt;
@@ -52,7 +85,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
-    return [...staticRoutes, ...categoryUrls, ...articleUrls, ...blogUrls];
+    return [
+      ...staticRoutes,
+      ...categoryUrls,
+      ...topicHubUrls,
+      ...authorUrls,
+      ...articleUrls,
+      ...blogUrls,
+    ];
   } catch {
     return staticRoutes;
   }

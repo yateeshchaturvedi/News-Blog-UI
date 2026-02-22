@@ -3,12 +3,14 @@ import { getPaginatedNews } from '@/lib/api';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import PublicAdSlot from '@/components/PublicAdSlot';
+import Breadcrumbs from '@/components/Breadcrumbs';
+import { normalizeCanonicalPath } from '@/lib/seo';
 
 export const metadata: Metadata = {
   title: 'All DevOps Lessons',
   description: 'Explore all approved DevOps lessons and tutorials by category.',
   alternates: {
-    canonical: '/news',
+    canonical: normalizeCanonicalPath('/news'),
   },
 };
 
@@ -23,11 +25,17 @@ export default async function NewsPage({
 
   return (
     <div className="space-y-8">
+        <Breadcrumbs items={[{ name: 'Home', href: '/' }, { name: 'Lessons' }]} />
         <div className="animate-fade-up flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-blue-100 bg-white/85 p-6 shadow-sm">
             <h1 className="text-4xl font-semibold text-slate-900">All Lessons</h1>
-            <Link href="/" className="rounded-full border border-blue-100 px-4 py-2 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-50">
-                &larr; Back to Home
-            </Link>
+            <div className="flex items-center gap-2">
+                <Link href="/topics" className="rounded-full border border-blue-100 px-4 py-2 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-50">
+                    Topic Hubs
+                </Link>
+                <Link href="/" className="rounded-full border border-blue-100 px-4 py-2 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-50">
+                    &larr; Back to Home
+                </Link>
+            </div>
         </div>
 
         {items.length > 0 ? (

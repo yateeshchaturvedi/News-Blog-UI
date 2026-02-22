@@ -22,6 +22,7 @@ import {
     updateAdvertisement,
     deleteAdvertisement,
     updateMyProfile,
+    deleteMyAccount,
 } from '@/lib/api';
 import { cookies } from 'next/headers';
 
@@ -37,6 +38,7 @@ const ContactFormSchema = z.object({
     name: z.string(),
     email: z.string().email(),
     message: z.string(),
+    captcha: z.string().trim().min(1, 'Captcha is required'),
 });
 
 const EditorFormSchema = z.object({
@@ -124,6 +126,7 @@ export type FormState = {
         avatarUrl?: string[];
         currentPassword?: string[];
         newPassword?: string[];
+        currentPasswordConfirm?: string[];
     };
     success?: boolean;
 };
@@ -268,6 +271,7 @@ export async function submitContactForm(prevState: FormState, formData: FormData
         name: formData.get('name'),
         email: formData.get('email'),
         message: formData.get('message'),
+        captcha: formData.get('captcha'),
     });
 
     if (!validatedFields.success) {
@@ -277,14 +281,45 @@ export async function submitContactForm(prevState: FormState, formData: FormData
         };
     }
 
-    const { name, email, message } = validatedFields.data;
+    const { name, email, message, captcha } = validatedFields.data;
+    const website = String(formData.get('website') || '');
+
+    if (captcha.trim().toUpperCase() !== 'DEVOPS') {
+        return { message: 'Captcha validation failed.' };
+    }
 
     try {
-        await submitContact({ name, email, message });
+        await submitContact({ name, email, message, website, captcha });
         return { message: 'Your message has been sent successfully!', success: true };
     } catch (error) {
         console.error(error);
         return { message: 'Failed to send message' };
+    }
+}
+
+export async function deleteAccountByUser(prevState: FormState, formData: FormData): Promise<FormState> {
+    const token = (await cookies()).get('token')?.value;
+    if (!token) return { message: 'Authentication failed. Please log in again.' };
+
+    const currentPassword = String(formData.get('currentPasswordConfirm') || '').trim();
+    const confirmation = String(formData.get('confirmationText') || '').trim();
+
+    if (!currentPassword) {
+        return { message: 'Current password is required to delete your account.' };
+    }
+
+    if (confirmation !== 'DELETE') {
+        return { message: 'Type DELETE to confirm account deletion.' };
+    }
+
+    try {
+        await deleteMyAccount({ currentPassword }, token);
+        const cookieStore = await cookies();
+        await cookieStore.delete('token');
+        redirect('/');
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        return { message: `Failed to delete account: ${errorMessage}` };
     }
 }
 

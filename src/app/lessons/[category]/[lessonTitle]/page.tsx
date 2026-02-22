@@ -2,10 +2,11 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import PublicAdSlot from '@/components/PublicAdSlot';
+import Breadcrumbs from '@/components/Breadcrumbs';
 import { getNews } from '@/lib/api';
 import { NewsArticle } from '@/lib/types';
-import { toAbsoluteUrl } from '@/lib/seo';
-import { toCategorySlug, toLessonSlug } from '@/lib/lesson-path';
+import { normalizeCanonicalPath, toAbsoluteUrl } from '@/lib/seo';
+import { toAuthorSlug, toCategorySlug, toLessonSlug } from '@/lib/lesson-path';
 
 function capitalize(str: string) {
   if (!str) return str;
@@ -93,6 +94,8 @@ export default async function LessonDetailPage({
   const publishedDate = article.created_at ?? article.createdAt ?? article.publishedAt;
   const articleContent = article.full_content ?? article.content ?? '';
   const canonicalPath = `/lessons/${toCategorySlug(article.category_name || 'general')}/${toLessonSlug(article.title)}`;
+  const normalizedCanonicalPath = normalizeCanonicalPath(canonicalPath);
+  const authorSlug = toAuthorSlug(article.author || 'Unknown author');
 
   const articleSchema = {
     '@context': 'https://schema.org',
@@ -104,12 +107,12 @@ export default async function LessonDetailPage({
       '@type': 'Person',
       name: article.author || 'DevOpsTic Team',
     },
-    image: article.imageUrl ? [toAbsoluteUrl(article.imageUrl)] : undefined,
-    articleSection: displayCategory,
-    mainEntityOfPage: toAbsoluteUrl(canonicalPath),
-    publisher: {
-      '@type': 'Organization',
-      name: 'DevOpsTic Academy',
+      image: article.imageUrl ? [toAbsoluteUrl(article.imageUrl)] : undefined,
+      articleSection: displayCategory,
+      mainEntityOfPage: toAbsoluteUrl(normalizedCanonicalPath),
+      publisher: {
+        '@type': 'Organization',
+        name: 'DevOpsTic Academy',
     },
   };
 
@@ -118,6 +121,14 @@ export default async function LessonDetailPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <Breadcrumbs
+        items={[
+          { name: 'Home', href: '/' },
+          { name: 'Lessons', href: '/news' },
+          { name: displayCategory, href: `/topics/${toCategorySlug(article.category_name || 'general')}` },
+          { name: article.title },
+        ]}
       />
       <div className="mb-4">
         <Link href={`/news/${toCategorySlug(article.category_name || 'general')}`} className="text-blue-500 hover:underline">
@@ -135,7 +146,10 @@ export default async function LessonDetailPage({
           className="h-5 w-5 rounded-full object-cover"
         />
         <span className="text-xs text-gray-500 dark:text-gray-400">
-          Written by {article.author || 'Unknown author'}
+          Written by{' '}
+          <Link href={`/authors/${authorSlug}`} className="text-blue-700 hover:underline">
+            {article.author || 'Unknown author'}
+          </Link>
         </span>
       </div>
       <p className="mb-2 text-lg text-gray-600 dark:text-gray-300">{displayCategory}</p>

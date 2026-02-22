@@ -9,6 +9,7 @@ import { jwtDecode } from "jwt-decode";
 import { logout } from "@/app/actions";
 import { getSiteUrl } from "@/lib/seo";
 import PublicAdSlot from "@/components/PublicAdSlot";
+import CookieConsent from "@/components/CookieConsent";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -105,6 +106,7 @@ export default async function RootLayout({
           <PublicAdSlot placement="site-footer" title="Sponsored" />
         </section>
         <Footer />
+        <CookieConsent />
       </body>
     </html>
   );

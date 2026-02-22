@@ -14,6 +14,10 @@ export function toLessonSlug(title: string): string {
     .replace(/-{2,}/g, '-');
 }
 
+export function toAuthorSlug(name: string): string {
+  return toLessonSlug(name || 'author');
+}
+
 export function buildLessonHref(article: NewsArticle): string {
   const categorySlug = toCategorySlug(article.category_name || article.category || 'general');
   const lessonSlug = toLessonSlug(article.title || '');

@@ -114,6 +114,23 @@ export default function ContactPage() {
                                         {state.errors?.message && <p className="text-red-500 text-sm mt-2">{state.errors.message[0]}</p>}
                                     </div>
                                 </div>
+                                <div>
+                                    <label htmlFor="captcha" className="block text-sm font-semibold leading-6 text-slate-900">
+                                        Anti-spam: type <code>DEVOPS</code>
+                                    </label>
+                                    <div className="mt-2.5">
+                                        <input
+                                            id="captcha"
+                                            name="captcha"
+                                            type="text"
+                                            className="block w-full rounded-md border-0 bg-white px-3.5 py-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 transition"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="hidden" aria-hidden="true">
+                                    <label htmlFor="website">Website</label>
+                                    <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+                                </div>
                                 <div className="pt-4">
                                     <SubmitButton />
                                 </div>
