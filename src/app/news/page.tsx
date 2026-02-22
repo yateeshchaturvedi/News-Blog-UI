@@ -1,5 +1,5 @@
 import NewsCard from '@/components/news-card';
-import { getEnrichedNews } from './utils';
+import { getPaginatedNews } from '@/lib/api';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import PublicAdSlot from '@/components/PublicAdSlot';
@@ -12,8 +12,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function NewsPage() {
-  const news = await getEnrichedNews();
+export default async function NewsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const resolvedParams = await searchParams;
+  const page = Math.max(1, Number.parseInt(resolvedParams.page || '1', 10) || 1);
+  const { items, pagination } = await getPaginatedNews(page, 12, 'APPROVED');
 
   return (
     <div className="space-y-8">
@@ -24,9 +30,9 @@ export default async function NewsPage() {
             </Link>
         </div>
 
-        {news.length > 0 ? (
+        {items.length > 0 ? (
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-                {news.map((article) => (
+                {items.map((article) => (
                     <NewsCard key={article.id} article={article} />
                 ))}
             </div>
@@ -35,6 +41,32 @@ export default async function NewsPage() {
                 <p>No lessons were found.</p>
             </div>
         )}
+
+        <div className="flex items-center justify-center gap-3">
+            <Link
+                href={`/news?page=${Math.max(1, pagination.page - 1)}`}
+                className={`rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
+                    pagination.hasPreviousPage
+                        ? 'border-blue-100 text-blue-700 hover:bg-blue-50'
+                        : 'pointer-events-none border-slate-200 text-slate-400'
+                }`}
+            >
+                Previous
+            </Link>
+            <span className="text-sm text-slate-600">
+                Page {pagination.page} of {pagination.totalPages}
+            </span>
+            <Link
+                href={`/news?page=${pagination.page + 1}`}
+                className={`rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
+                    pagination.hasNextPage
+                        ? 'border-blue-100 text-blue-700 hover:bg-blue-50'
+                        : 'pointer-events-none border-slate-200 text-slate-400'
+                }`}
+            >
+                Next
+            </Link>
+        </div>
 
         <PublicAdSlot placement="news-sidebar" title="Sponsored" />
     </div>

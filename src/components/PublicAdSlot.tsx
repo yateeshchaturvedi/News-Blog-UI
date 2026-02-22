@@ -100,6 +100,7 @@ export default async function PublicAdSlot({
                         alt={adToShow.title}
                         width={1200}
                         height={360}
+                        sizes={compact ? '(max-width: 1024px) 100vw, 320px' : '100vw'}
                         className={`${compact ? 'h-32' : 'h-48'} w-full object-cover`}
                     />
                 ) : (

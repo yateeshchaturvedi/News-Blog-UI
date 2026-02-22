@@ -1,8 +1,9 @@
 import NewsCard from "@/components/news-card";
-import { getBlogs } from "@/lib/api";
+import { getPaginatedBlogs } from "@/lib/api";
 import { Blog, NewsArticle } from "@/lib/types";
 import type { Metadata } from "next";
 import PublicAdSlot from "@/components/PublicAdSlot";
+import Link from "next/link";
 
 export const metadata: Metadata = {
     title: "DevOps Blog",
@@ -23,8 +24,14 @@ function stripHtml(content: string): string {
         .trim();
 }
 
-export default async function BlogPage() {
-    const blogs = await getBlogs();
+export default async function BlogPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ page?: string }>;
+}) {
+    const resolvedParams = await searchParams;
+    const page = Math.max(1, Number.parseInt(resolvedParams.page || '1', 10) || 1);
+    const { items: blogs, pagination } = await getPaginatedBlogs(page, 9, 'APPROVED');
 
     const articles: NewsArticle[] = blogs.map((blog: Blog) => ({
         id: blog.id,
@@ -48,6 +55,29 @@ export default async function BlogPage() {
                 {articles.map((article: NewsArticle) => (
                     <NewsCard key={article.id} article={article} />
                 ))}
+            </div>
+            <div className="flex items-center justify-center gap-3">
+                <Link
+                    href={`/blog?page=${Math.max(1, pagination.page - 1)}`}
+                    className={`rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${pagination.hasPreviousPage
+                        ? 'border-blue-100 text-blue-700 hover:bg-blue-50'
+                        : 'pointer-events-none border-slate-200 text-slate-400'
+                        }`}
+                >
+                    Previous
+                </Link>
+                <span className="text-sm text-slate-600">
+                    Page {pagination.page} of {pagination.totalPages}
+                </span>
+                <Link
+                    href={`/blog?page=${pagination.page + 1}`}
+                    className={`rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${pagination.hasNextPage
+                        ? 'border-blue-100 text-blue-700 hover:bg-blue-50'
+                        : 'pointer-events-none border-slate-200 text-slate-400'
+                        }`}
+                >
+                    Next
+                </Link>
             </div>
             <PublicAdSlot placement="blog-sidebar" title="Sponsored" />
         </div>

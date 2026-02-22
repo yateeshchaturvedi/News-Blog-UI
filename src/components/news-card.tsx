@@ -19,6 +19,7 @@ export default function NewsCard({ article }: { article: NewsArticle }) {
                         src={article.imageUrl || placeholderImage} 
                         alt={article.title} 
                         fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/45 via-transparent to-transparent" />
@@ -36,6 +37,7 @@ export default function NewsCard({ article }: { article: NewsArticle }) {
                                 alt={article.author || 'Author'}
                                 width={18}
                                 height={18}
+                                sizes="18px"
                                 className="h-[18px] w-[18px] rounded-full object-cover"
                             />
                             <span className="text-[11px] font-medium text-slate-500">{article.author || 'Unknown author'}</span>

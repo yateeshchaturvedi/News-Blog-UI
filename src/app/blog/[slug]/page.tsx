@@ -81,7 +81,13 @@ export default function BlogPostPage({ params: paramsPromise }: { params: Promis
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
             />
             <div className="relative h-[500px]">
-                <Image src={news.image} alt={news.title} layout="fill" objectFit="cover" className="opacity-80" />
+                <Image
+                    src={news.image}
+                    alt={news.title}
+                    fill
+                    sizes="100vw"
+                    className="object-cover opacity-80"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                 <div className="absolute bottom-0 left-0 p-12">
                      <span className="text-white bg-blue-500 px-3 py-1 rounded-full text-sm font-semibold">{news.category}</span>

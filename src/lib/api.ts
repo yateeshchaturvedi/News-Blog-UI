@@ -1,4 +1,5 @@
-import { NewsArticle, Blog, Category, Advertisement, UserProfile } from '@/lib/types';
+import { NewsArticle, Blog, Category, Advertisement, UserProfile, PaginatedResult, PaginationMeta } from '@/lib/types';
+import { createRequestId, logEvent } from '@/lib/observability';
 
 const configuredApiBaseUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL;
@@ -78,6 +79,11 @@ interface ApiUserProfile {
     updatedAt?: string;
 }
 
+interface ApiPaginatedResponse<T> {
+    items: T[];
+    pagination: PaginationMeta;
+}
+
 function stripHtml(content: string): string {
     return content
         .replace(/<[^>]+>/g, ' ')
@@ -96,18 +102,66 @@ function summarizeContent(content: string, maxLength = 100): string {
     return `${plain.slice(0, maxLength).trimEnd()}...`;
 }
 
+function mapApiArticle(article: ApiArticle, categoryMap: Map<number, string>): NewsArticle {
+    const categoryId = article.category_id ?? null;
+    const category_name = categoryId ? categoryMap.get(categoryId) || 'general' : 'general';
+    const author =
+        article.author ||
+        article.author_name ||
+        article.authorName ||
+        article.created_by ||
+        article.createdBy ||
+        article.userId ||
+        article.user?.name ||
+        article.user?.username ||
+        article.username ||
+        (article.user_id ? `User #${article.user_id}` : 'Unknown');
+
+    return {
+        id: article.id.toString(),
+        title: article.title,
+        author,
+        authorAvatarUrl: article.author_avatar_url || '',
+        summary: summarizeContent(article.content || '', 100),
+        content: article.content || '',
+        full_content: article.content || '',
+        imageUrl: article.imageUrl || article.image_path || article.imagePath || '',
+        status: article.status || 'PENDING',
+        user_id: article.user_id,
+        publishedAt: article.created_at,
+        category: article.category_id ? article.category_id.toString() : '',
+        category_name: category_name,
+        created_at: article.created_at,
+        updated_at: article.updated_at || article.created_at,
+    };
+}
+
+function mapApiBlog(blog: ApiBlog): Blog {
+    return {
+        id: blog.id,
+        title: blog.title,
+        content: blog.content || '',
+        createdAt: blog.createdAt || blog.created_at || '',
+        updatedAt: blog.updatedAt || blog.updated_at || blog.createdAt || blog.created_at || '',
+    };
+}
+
 async function fetchAPI(endpoint: string, options: RequestInit = {}, token?: string) {
     const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     const url = `${API_BASE_URL}${normalizedEndpoint}`;
+    const requestId = createRequestId();
     const headers: Record<string, string> = { ...options.headers as Record<string, string> };
     if (options.body) headers['Content-Type'] = 'application/json';
+    headers['x-request-id'] = requestId;
     if (token) {
         const normalizedToken = token.startsWith('Bearer ') ? token.slice(7) : token;
         headers['Authorization'] = `Bearer ${normalizedToken}`;
         headers['x-auth-token'] = normalizedToken;
     }
 
+    const startedAt = Date.now();
     const response = await fetch(url, { ...options, headers });
+    const responseRequestId = response.headers.get('x-request-id') || requestId;
 
     if (!response.ok) {
         const rawBody = await response.text();
@@ -122,11 +176,25 @@ async function fetchAPI(endpoint: string, options: RequestInit = {}, token?: str
             (errorBody?.message as string) ||
             (rawBody || '').trim() ||
             `API call failed: ${response.status} ${response.statusText}`;
-        console.error('API Error:', { status: response.status, statusText: response.statusText, body: rawBody });
+        logEvent('error', 'api.request_failed', {
+            requestId: responseRequestId,
+            url,
+            method: options.method || 'GET',
+            status: response.status,
+            statusText: response.statusText,
+            durationMs: Date.now() - startedAt,
+        });
         throw new Error(errorMessage);
     }
 
     const contentType = response.headers.get('content-type');
+    logEvent('info', 'api.request_completed', {
+        requestId: responseRequestId,
+        url,
+        method: options.method || 'GET',
+        status: response.status,
+        durationMs: Date.now() - startedAt,
+    });
     if (contentType && contentType.includes('application/json')) return response.json();
     return {};
 }
@@ -147,39 +215,46 @@ export const getNews = async (token?: string): Promise<NewsArticle[]> => {
     const newsData = await fetchAPI('api/news/', {}, token);
     if (!newsData || !Array.isArray(newsData)) return [];
 
-    return newsData.map((article: ApiArticle) => {
-        const categoryId = article.category_id ?? null;
-        const category_name = categoryId ? categoryMap.get(categoryId) || 'general' : 'general';
-        const author =
-            article.author ||
-            article.author_name ||
-            article.authorName ||
-            article.created_by ||
-            article.createdBy ||
-            article.userId ||
-            article.user?.name ||
-            article.user?.username ||
-            article.username ||
-            (article.user_id ? `User #${article.user_id}` : 'Unknown');
+    return newsData.map((article: ApiArticle) => mapApiArticle(article, categoryMap));
+};
 
-        return {
-            id: article.id.toString(),
-            title: article.title,
-            author,
-            authorAvatarUrl: article.author_avatar_url || '',
-            summary: summarizeContent(article.content || '', 100),
-            content: article.content || '',
-            full_content: article.content || '',
-            imageUrl: article.imageUrl || article.image_path || article.imagePath || '',
-            status: article.status || 'PENDING',
-            user_id: article.user_id,
-            publishedAt: article.created_at,
-            category: article.category_id ? article.category_id.toString() : '',
-            category_name: category_name,
-            created_at: article.created_at,
-            updated_at: article.updated_at || article.created_at,
-        };
-    });
+export const getPaginatedNews = async (
+    page: number,
+    limit = 12,
+    status?: 'APPROVED' | 'PENDING',
+    token?: string
+): Promise<PaginatedResult<NewsArticle>> => {
+    const categoryMap = new Map<number, string>();
+    try {
+        const categoriesData = await fetchAPI('api/categories/', {}, token);
+        if (categoriesData && Array.isArray(categoriesData)) {
+            categoriesData.forEach((category: { id: number; name: string }) => categoryMap.set(category.id, category.name));
+        }
+    } catch (error) {
+        console.error('Failed to fetch categories:', error);
+    }
+
+    const statusQuery = status ? `&status=${encodeURIComponent(status)}` : '';
+    const response = await fetchAPI(
+        `api/news/?page=${Math.max(1, page)}&limit=${Math.max(1, limit)}${statusQuery}`,
+        {},
+        token
+    ) as ApiPaginatedResponse<ApiArticle>;
+    const items = Array.isArray(response?.items)
+        ? response.items.map((article) => mapApiArticle(article, categoryMap))
+        : [];
+
+    return {
+        items,
+        pagination: response?.pagination || {
+            page: Math.max(1, page),
+            limit: Math.max(1, limit),
+            total: items.length,
+            totalPages: 1,
+            hasNextPage: false,
+            hasPreviousPage: false,
+        },
+    };
 };
 
 export const getNewsArticle = async (id: string | number, token?: string): Promise<NewsArticle | undefined> => {
@@ -291,13 +366,34 @@ export const uploadImage = async (imageFile: File): Promise<string> => {
 export const getBlogs = async (token?: string): Promise<Blog[]> => {
     const blogs = await fetchAPI('api/blogs/', {}, token);
     if (!Array.isArray(blogs)) return [];
-    return blogs.map((blog: ApiBlog) => ({
-        id: blog.id,
-        title: blog.title,
-        content: blog.content || '',
-        createdAt: blog.createdAt || blog.created_at || '',
-        updatedAt: blog.updatedAt || blog.updated_at || blog.createdAt || blog.created_at || '',
-    }));
+    return blogs.map((blog: ApiBlog) => mapApiBlog(blog));
+};
+
+export const getPaginatedBlogs = async (
+    page: number,
+    limit = 12,
+    status?: 'APPROVED' | 'PENDING',
+    token?: string
+): Promise<PaginatedResult<Blog>> => {
+    const statusQuery = status ? `&status=${encodeURIComponent(status)}` : '';
+    const response = await fetchAPI(
+        `api/blogs/?page=${Math.max(1, page)}&limit=${Math.max(1, limit)}${statusQuery}`,
+        {},
+        token
+    ) as ApiPaginatedResponse<ApiBlog>;
+    const items = Array.isArray(response?.items) ? response.items.map((blog) => mapApiBlog(blog)) : [];
+
+    return {
+        items,
+        pagination: response?.pagination || {
+            page: Math.max(1, page),
+            limit: Math.max(1, limit),
+            total: items.length,
+            totalPages: 1,
+            hasNextPage: false,
+            hasPreviousPage: false,
+        },
+    };
 };
 
 // Auth

@@ -42,6 +42,7 @@ export default function ProfileForm({ profile }: { profile: UserProfile }) {
                         alt={profile.fullName || profile.username}
                         width={64}
                         height={64}
+                        sizes="64px"
                         className="h-16 w-16 rounded-full border border-blue-100 object-cover"
                     />
                     <div>

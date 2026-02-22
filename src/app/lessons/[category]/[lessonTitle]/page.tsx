@@ -131,6 +131,7 @@ export default async function LessonDetailPage({
           alt={article.author || 'Author'}
           width={20}
           height={20}
+          sizes="20px"
           className="h-5 w-5 rounded-full object-cover"
         />
         <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -147,6 +148,7 @@ export default async function LessonDetailPage({
           alt={article.title}
           width={800}
           height={400}
+          sizes="(max-width: 1024px) 100vw, 800px"
           className="mb-8 h-auto w-full rounded-lg object-cover"
         />
       )}
