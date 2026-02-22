@@ -5,11 +5,18 @@ import { getNews } from '@/lib/api';
 import NewsCard from '@/components/news-card';
 import { NewsArticle } from '@/lib/types';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { useSearchParams } from 'next/navigation';
 
 export default function SearchPage() {
+    const searchParams = useSearchParams();
+    const initialQuery = (searchParams.get('q') || '').trim();
     const [searchTerm, setSearchTerm] = useState('');
     const [news, setNews] = useState<NewsArticle[]>([]);
     const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        setSearchTerm(initialQuery);
+    }, [initialQuery]);
 
     useEffect(() => {
         async function fetchNews() {
