@@ -18,6 +18,8 @@ export default function Footer() {
                             <li><Link href="/" className="text-slate-600 transition-colors hover:text-slate-900">Home</Link></li>
                             <li><Link href="/blog" className="text-slate-600 transition-colors hover:text-slate-900">Blog</Link></li>
                             <li><Link href="/contact" className="text-slate-600 transition-colors hover:text-slate-900">Contact</Link></li>
+                            <li><Link href="/status" className="text-slate-600 transition-colors hover:text-slate-900">System Status</Link></li>
+                            <li><Link href="/changelog" className="text-slate-600 transition-colors hover:text-slate-900">Changelog</Link></li>
                             <li><Link href="/privacy" className="text-slate-600 transition-colors hover:text-slate-900">Privacy</Link></li>
                             <li><Link href="/terms" className="text-slate-600 transition-colors hover:text-slate-900">Terms</Link></li>
                             <li><Link href="/data-retention" className="text-slate-600 transition-colors hover:text-slate-900">Data Retention</Link></li>

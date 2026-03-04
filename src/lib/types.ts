@@ -50,6 +50,25 @@ export interface ContactMessage {
     user_agent?: string | null;
     is_spam: boolean;
     moderation_reason?: string | null;
+    status: 'NEW' | 'REVIEWED' | 'RESOLVED';
+    reviewed_at?: string | null;
+    reviewed_by?: number | null;
+    review_notes?: string | null;
+    created_at: string;
+}
+
+export interface AuditLogItem {
+    id: number;
+    actor_user_id?: number | null;
+    actor_role_id?: number | null;
+    action: string;
+    entity_type: string;
+    entity_id?: string | null;
+    before_state?: unknown;
+    after_state?: unknown;
+    request_id?: string | null;
+    ip_address?: string | null;
+    user_agent?: string | null;
     created_at: string;
 }
 

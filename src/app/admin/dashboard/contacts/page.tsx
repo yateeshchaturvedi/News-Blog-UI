@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getContactMessages } from '@/lib/api';
 import { ContactMessage } from '@/lib/types';
+import Link from 'next/link';
 
 export default async function AdminContactsPage() {
   const token = (await cookies()).get('token')?.value;
@@ -34,13 +35,15 @@ export default async function AdminContactsPage() {
                 <th className="px-4 py-3">Email</th>
                 <th className="px-4 py-3">Message</th>
                 <th className="px-4 py-3">Spam</th>
+                <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Submitted</th>
+                <th className="px-4 py-3">Actions</th>
               </tr>
             </thead>
             <tbody>
               {messages.length === 0 ? (
                 <tr>
-                  <td className="px-4 py-6 text-slate-500" colSpan={5}>
+                  <td className="px-4 py-6 text-slate-500" colSpan={7}>
                     No contact messages yet.
                   </td>
                 </tr>
@@ -68,8 +71,29 @@ export default async function AdminContactsPage() {
                         {item.is_spam ? 'Flagged' : 'Clean'}
                       </span>
                     </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                          item.status === 'RESOLVED'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : item.status === 'REVIEWED'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-slate-100 text-slate-700'
+                        }`}
+                      >
+                        {item.status}
+                      </span>
+                    </td>
                     <td className="px-4 py-3 text-xs text-slate-500">
                       {item.created_at ? new Date(item.created_at).toLocaleString() : 'N/A'}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Link
+                        href={`/admin/dashboard/contacts/${item.id}`}
+                        className="rounded-full border border-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50"
+                      >
+                        Open
+                      </Link>
                     </td>
                   </tr>
                 ))

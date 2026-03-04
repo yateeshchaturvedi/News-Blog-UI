@@ -23,6 +23,7 @@ import {
     deleteAdvertisement,
     updateMyProfile,
     deleteMyAccount,
+    updateContactMessageStatus,
 } from '@/lib/api';
 import { cookies } from 'next/headers';
 
@@ -595,4 +596,23 @@ export async function deleteAdvertisementByAdmin(id: string | number): Promise<v
     if (!token) throw new Error('Authentication failed. Please log in again.');
     await deleteAdvertisement(id, token);
     revalidatePath('/admin/dashboard/advertisements');
+}
+
+export async function updateContactStatusByAdmin(
+    id: string | number,
+    formData: FormData
+): Promise<void> {
+    const token = (await cookies()).get('token')?.value;
+    if (!token) throw new Error('Authentication failed. Please log in again.');
+
+    const status = String(formData.get('status') || '').trim().toUpperCase() as 'NEW' | 'REVIEWED' | 'RESOLVED';
+    const reviewNotes = String(formData.get('reviewNotes') || '').trim();
+
+    if (!['NEW', 'REVIEWED', 'RESOLVED'].includes(status)) {
+        throw new Error('Invalid status selected.');
+    }
+
+    await updateContactMessageStatus(id, { status, reviewNotes: reviewNotes || undefined }, token);
+    revalidatePath('/admin/dashboard/contacts');
+    revalidatePath(`/admin/dashboard/contacts/${id}`);
 }

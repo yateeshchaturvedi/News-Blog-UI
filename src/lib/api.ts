@@ -1,4 +1,4 @@
-import { NewsArticle, Blog, Category, Advertisement, ContactMessage, UserProfile, PaginatedResult, PaginationMeta } from '@/lib/types';
+import { Advertisement, AuditLogItem, Blog, Category, ContactMessage, NewsArticle, UserProfile, PaginatedResult, PaginationMeta } from '@/lib/types';
 import { createRequestId, logEvent } from '@/lib/observability';
 
 const configuredApiBaseUrl =
@@ -542,6 +542,86 @@ export const getContactMessages = async (token: string): Promise<ContactMessage[
         user_agent: item.user_agent || null,
         is_spam: Boolean(item.is_spam),
         moderation_reason: item.moderation_reason || null,
+        status: (String(item.status || 'NEW').toUpperCase() as ContactMessage['status']),
+        reviewed_at: item.reviewed_at || null,
+        reviewed_by: item.reviewed_by ?? null,
+        review_notes: item.review_notes || null,
         created_at: String(item.created_at || ''),
     }));
+};
+
+export const getContactMessageById = async (id: string | number, token: string): Promise<ContactMessage | undefined> => {
+    try {
+        const item = await fetchAPI(`api/contact/${encodeURIComponent(String(id))}`, {}, token);
+        if (!item) return undefined;
+        return {
+            id: Number(item.id),
+            name: String(item.name || ''),
+            email: String(item.email || ''),
+            message: String(item.message || ''),
+            ip_address: item.ip_address || null,
+            user_agent: item.user_agent || null,
+            is_spam: Boolean(item.is_spam),
+            moderation_reason: item.moderation_reason || null,
+            status: (String(item.status || 'NEW').toUpperCase() as ContactMessage['status']),
+            reviewed_at: item.reviewed_at || null,
+            reviewed_by: item.reviewed_by ?? null,
+            review_notes: item.review_notes || null,
+            created_at: String(item.created_at || ''),
+        };
+    } catch {
+        return undefined;
+    }
+};
+
+export const updateContactMessageStatus = async (
+    id: string | number,
+    payload: { status: ContactMessage['status']; reviewNotes?: string },
+    token: string
+): Promise<ContactMessage> => {
+    const item = await fetchAPI(
+        `api/contact/${encodeURIComponent(String(id))}/status`,
+        { method: 'PATCH', body: JSON.stringify(payload) },
+        token
+    );
+
+    return {
+        id: Number(item.id),
+        name: String(item.name || ''),
+        email: String(item.email || ''),
+        message: String(item.message || ''),
+        ip_address: item.ip_address || null,
+        user_agent: item.user_agent || null,
+        is_spam: Boolean(item.is_spam),
+        moderation_reason: item.moderation_reason || null,
+        status: (String(item.status || 'NEW').toUpperCase() as ContactMessage['status']),
+        reviewed_at: item.reviewed_at || null,
+        reviewed_by: item.reviewed_by ?? null,
+        review_notes: item.review_notes || null,
+        created_at: String(item.created_at || ''),
+    };
+};
+
+export const getAuditLogs = async (
+    page: number,
+    limit = 50,
+    token?: string
+): Promise<PaginatedResult<AuditLogItem>> => {
+    const response = await fetchAPI(
+        `api/audit-logs/?page=${Math.max(1, page)}&limit=${Math.max(1, limit)}`,
+        {},
+        token
+    ) as ApiPaginatedResponse<AuditLogItem>;
+
+    return {
+        items: Array.isArray(response?.items) ? response.items : [],
+        pagination: response?.pagination || {
+            page: Math.max(1, page),
+            limit: Math.max(1, limit),
+            total: 0,
+            totalPages: 1,
+            hasNextPage: false,
+            hasPreviousPage: false,
+        },
+    };
 };
