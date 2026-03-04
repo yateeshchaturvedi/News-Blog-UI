@@ -1,4 +1,4 @@
-import { NewsArticle, Blog, Category, Advertisement, UserProfile, PaginatedResult, PaginationMeta } from '@/lib/types';
+import { NewsArticle, Blog, Category, Advertisement, ContactMessage, UserProfile, PaginatedResult, PaginationMeta } from '@/lib/types';
 import { createRequestId, logEvent } from '@/lib/observability';
 
 const configuredApiBaseUrl =
@@ -529,3 +529,19 @@ export const deleteAdvertisement = async (id: string | number, token: string): P
 // Contact
 export const submitContact = (data: { name: string; email: string; message: string; website?: string; captcha: string }) =>
     fetchAPI('api/contact/', { method: 'POST', body: JSON.stringify(data) });
+
+export const getContactMessages = async (token: string): Promise<ContactMessage[]> => {
+    const data = await fetchAPI('api/contact/', {}, token);
+    if (!Array.isArray(data)) return [];
+    return data.map((item) => ({
+        id: Number(item.id),
+        name: String(item.name || ''),
+        email: String(item.email || ''),
+        message: String(item.message || ''),
+        ip_address: item.ip_address || null,
+        user_agent: item.user_agent || null,
+        is_spam: Boolean(item.is_spam),
+        moderation_reason: item.moderation_reason || null,
+        created_at: String(item.created_at || ''),
+    }));
+};

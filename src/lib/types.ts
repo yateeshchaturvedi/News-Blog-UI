@@ -41,6 +41,18 @@ export interface Advertisement {
     updatedAt?: string;
 }
 
+export interface ContactMessage {
+    id: number;
+    name: string;
+    email: string;
+    message: string;
+    ip_address?: string | null;
+    user_agent?: string | null;
+    is_spam: boolean;
+    moderation_reason?: string | null;
+    created_at: string;
+}
+
 export interface LoginResponse {
     token: string;
 }

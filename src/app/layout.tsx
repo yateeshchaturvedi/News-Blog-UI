@@ -80,33 +80,36 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`${manrope.variable} ${playfair.variable} antialiased`}>
-        {token && (
-          <div className="border-b border-blue-100 bg-white/85 backdrop-blur">
-            <div className="mx-auto flex w-full max-w-[1240px] items-center justify-end gap-3 px-4 py-2 md:px-6">
-              <Link
-                href="/admin/dashboard"
-                className="rounded-full border border-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 transition-colors hover:bg-blue-50"
-              >
-                {dashboardLabel}
-              </Link>
-              <form action={handleLogout}>
-                <button
-                  type="submit"
-                  className="rounded-full border border-red-100 px-3 py-1 text-xs font-semibold text-red-700 transition-colors hover:bg-red-50"
+        <div className="relative isolate">
+          <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-80 bg-[radial-gradient(70%_60%_at_50%_0%,rgba(59,130,246,0.14),transparent_70%)]" />
+          {token && (
+            <div className="border-b border-slate-200/80 bg-white/70 backdrop-blur-xl">
+              <div className="mx-auto flex w-full max-w-[1240px] items-center justify-end gap-3 px-4 py-2 md:px-6">
+                <Link
+                  href="/admin/dashboard"
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50"
                 >
-                  Logout
-                </button>
-              </form>
+                  {dashboardLabel}
+                </Link>
+                <form action={handleLogout}>
+                  <button
+                    type="submit"
+                    className="rounded-full border border-red-100 bg-white px-3 py-1 text-xs font-semibold text-red-700 transition-colors hover:bg-red-50"
+                  >
+                    Logout
+                  </button>
+                </form>
+              </div>
             </div>
-          </div>
-        )}
-        <Header />
-        <main className="mx-auto w-full max-w-[1240px] px-4 py-8 md:px-6 md:py-10">{children}</main>
-        <section className="mx-auto w-full max-w-[1240px] px-4 pb-8 md:px-6">
-          <PublicAdSlot placement="site-footer" title="Sponsored" />
-        </section>
-        <Footer />
-        <CookieConsent />
+          )}
+          <Header />
+          <main className="mx-auto w-full max-w-[1240px] px-4 py-8 md:px-6 md:py-10">{children}</main>
+          <section className="mx-auto w-full max-w-[1240px] px-4 pb-8 md:px-6">
+            <PublicAdSlot placement="site-footer" title="Sponsored" />
+          </section>
+          <Footer />
+          <CookieConsent />
+        </div>
       </body>
     </html>
   );

@@ -13,24 +13,24 @@ export default function NewsCard({ article }: { article: NewsArticle }) {
 
     return (
         <Link href={detailHref} className="group block animate-fade-up">
-            <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-blue-100/80 bg-white/95 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+            <div className="flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white/92 shadow-[0_12px_35px_-20px_rgba(2,6,23,0.3)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_50px_-24px_rgba(2,6,23,0.4)]">
                 <div className="relative h-52 w-full overflow-hidden">
                     <Image 
                         src={article.imageUrl || placeholderImage} 
                         alt={article.title} 
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+                        className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/45 via-transparent to-transparent" />
-                    <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold tracking-wide text-slate-700">
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-transparent" />
+                    <span className="absolute left-3 top-3 rounded-full border border-white/70 bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-slate-700">
                         {category}
                     </span>
                 </div>
                 <div className="flex flex-grow flex-col p-5">
-                    <h3 className="mb-2 line-clamp-2 text-xl font-semibold text-slate-900 transition-colors group-hover:text-blue-700">{article.title}</h3>
+                    <h3 className="mb-2 line-clamp-2 text-xl font-semibold text-slate-900 transition-colors group-hover:text-slate-700">{article.title}</h3>
                     <p className="flex-grow text-sm leading-6 text-slate-600">{article.summary ?? ''}</p>
-                    <div className="mt-5 flex items-center justify-between border-t border-blue-50 pt-3">
+                    <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-3">
                         <div className="flex items-center gap-2">
                             <Image
                                 src={article.authorAvatarUrl || "/placeholder.svg"}
@@ -42,7 +42,7 @@ export default function NewsCard({ article }: { article: NewsArticle }) {
                             />
                             <span className="text-[11px] font-medium text-slate-500">{article.author || 'Unknown author'}</span>
                         </div>
-                        <span className="text-xs font-semibold text-blue-700 transition-transform group-hover:translate-x-0.5">
+                        <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-700 transition-all group-hover:border-slate-300 group-hover:bg-white">
                             Start lesson
                         </span>
                     </div>

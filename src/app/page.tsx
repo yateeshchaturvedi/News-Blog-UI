@@ -34,7 +34,7 @@ export default async function HomePage() {
             <h1 className="text-4xl font-semibold leading-tight text-slate-900 md:text-5xl">Latest Lessons</h1>
             <p className="mt-4 text-base leading-7 text-slate-600 md:text-lg">Learn by doing with concise lessons on CI/CD, Kubernetes, cloud operations, and infrastructure automation.</p>
             <div className="mt-6">
-              <Link href="/news" className="animate-soft-pulse inline-flex items-center rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow transition-all hover:bg-blue-700">
+              <Link href="/lessons" className="animate-soft-pulse inline-flex items-center rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow transition-all hover:bg-blue-700">
                 Explore All Lessons
               </Link>
             </div>

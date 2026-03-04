@@ -1,4 +1,4 @@
-import { Home, Newspaper, Settings, LogOut, Menu, FolderTree, BookOpenText, Megaphone, UserRound } from 'lucide-react';
+import { Home, Newspaper, Settings, LogOut, Menu, FolderTree, BookOpenText, Megaphone, UserRound, Mail } from 'lucide-react';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -42,6 +42,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         { href: '/admin/dashboard/categories', icon: FolderTree, label: 'Categories' },
         { href: '/admin/dashboard/blogs', icon: BookOpenText, label: 'Blogs' },
         { href: '/admin/dashboard/advertisements', icon: Megaphone, label: 'Advertisements' },
+        ...(role === 1 ? [{ href: '/admin/dashboard/contacts', icon: Mail, label: 'Contact Messages' }] : []),
         ...(role === 1 ? [{ href: '/admin/dashboard/settings', icon: Settings, label: 'Settings' }] : []),
     ];
 
