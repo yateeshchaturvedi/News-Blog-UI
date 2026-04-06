@@ -133,9 +133,9 @@ export default async function HomePage() {
           </Link>
         </div>
         <div className="rounded-3xl border border-slate-200 bg-white/90 p-8 shadow-sm">
-          <h3 className="text-2xl font-semibold text-slate-900">Blogs</h3>
+          <h3 className="text-2xl font-semibold text-slate-900">Blogs with Author Info</h3>
           <p className="mt-3 text-sm text-slate-600">
-            Blogs message goes here. Read updates, tips, and deeper dives from the DevOpsTic community.
+            Read blogs with author details, insights, and deeper dives from the DevOpsTic community.
           </p>
           <Link
             href="/blog"
