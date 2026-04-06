@@ -1,4 +1,4 @@
-import { Advertisement, AuditLogItem, Blog, Category, ContactMessage, NewsArticle, UserProfile, PaginatedResult, PaginationMeta } from '@/lib/types';
+import { Advertisement, AuditLogItem, Blog, Category, ContactMessage, InterviewQuestion, NewsArticle, UserProfile, PaginatedResult, PaginationMeta } from '@/lib/types';
 import { createRequestId, logEvent } from '@/lib/observability';
 
 const configuredApiBaseUrl =
@@ -61,6 +61,17 @@ interface ApiAdvertisement {
     is_active?: boolean;
     createdAt?: string;
     updatedAt?: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
+interface ApiInterviewQuestion {
+    id: number | string;
+    question: string;
+    answer: string;
+    category?: string | null;
+    is_published?: boolean;
+    author_name?: string;
     created_at?: string;
     updated_at?: string;
 }
@@ -143,6 +154,19 @@ function mapApiBlog(blog: ApiBlog): Blog {
         content: blog.content || '',
         createdAt: blog.createdAt || blog.created_at || '',
         updatedAt: blog.updatedAt || blog.updated_at || blog.createdAt || blog.created_at || '',
+    };
+}
+
+function mapInterviewQuestion(question: ApiInterviewQuestion): InterviewQuestion {
+    return {
+        id: question.id,
+        question: question.question || '',
+        answer: question.answer || '',
+        category: question.category ?? null,
+        isPublished: question.is_published ?? true,
+        authorName: question.author_name || '',
+        createdAt: question.created_at || '',
+        updatedAt: question.updated_at || question.created_at || '',
     };
 }
 
@@ -367,6 +391,54 @@ export const getBlogs = async (token?: string): Promise<Blog[]> => {
     const blogs = await fetchAPI('api/blogs/', {}, token);
     if (!Array.isArray(blogs)) return [];
     return blogs.map((blog: ApiBlog) => mapApiBlog(blog));
+};
+
+// Interview Questions
+export const getInterviewQuestions = async (): Promise<InterviewQuestion[]> => {
+    const data = await fetchAPI('api/interview-questions/', {});
+    if (!Array.isArray(data)) return [];
+    return data.map((item: ApiInterviewQuestion) => mapInterviewQuestion(item));
+};
+
+export const getInterviewQuestionsAdmin = async (token: string): Promise<InterviewQuestion[]> => {
+    const data = await fetchAPI('api/interview-questions/admin', {}, token);
+    if (!Array.isArray(data)) return [];
+    return data.map((item: ApiInterviewQuestion) => mapInterviewQuestion(item));
+};
+
+export const createInterviewQuestion = async (
+    data: Pick<InterviewQuestion, 'question' | 'answer'> &
+        Partial<Pick<InterviewQuestion, 'category' | 'isPublished'>>,
+    token: string
+): Promise<InterviewQuestion> => {
+    const payload: Record<string, unknown> = {
+        question: data.question,
+        answer: data.answer,
+        category: data.category || null,
+        isPublished: data.isPublished ?? true,
+    };
+    return fetchAPI('api/interview-questions/', { method: 'POST', body: JSON.stringify(payload) }, token);
+};
+
+export const updateInterviewQuestion = async (
+    id: string | number,
+    data: Partial<Pick<InterviewQuestion, 'question' | 'answer' | 'category' | 'isPublished'>>,
+    token: string
+): Promise<InterviewQuestion> => {
+    const payload: Record<string, unknown> = {};
+    if (data.question !== undefined) payload.question = data.question;
+    if (data.answer !== undefined) payload.answer = data.answer;
+    if (data.category !== undefined) payload.category = data.category;
+    if (data.isPublished !== undefined) payload.isPublished = data.isPublished;
+    return fetchAPI(
+        `api/interview-questions/${encodeURIComponent(String(id))}`,
+        { method: 'PATCH', body: JSON.stringify(payload) },
+        token
+    );
+};
+
+export const deleteInterviewQuestion = async (id: string | number, token: string): Promise<void> => {
+    await fetchAPI(`api/interview-questions/${encodeURIComponent(String(id))}`, { method: 'DELETE' }, token);
 };
 
 export const getPaginatedBlogs = async (

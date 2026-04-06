@@ -21,6 +21,9 @@ import {
     createAdvertisement,
     updateAdvertisement,
     deleteAdvertisement,
+    createInterviewQuestion,
+    updateInterviewQuestion,
+    deleteInterviewQuestion,
     updateMyProfile,
     deleteMyAccount,
     updateContactMessageStatus,
@@ -78,6 +81,13 @@ const AdvertisementFormSchema = z.object({
     isActive: z.string().trim().optional(),
 });
 
+const InterviewQuestionFormSchema = z.object({
+    question: z.string().trim().min(5, 'Question must be at least 5 characters'),
+    answer: z.string().trim().min(10, 'Answer must be at least 10 characters'),
+    category: z.string().trim().optional(),
+    isPublished: z.string().trim().optional(),
+});
+
 async function saveNewsImage(file: File): Promise<string | undefined> {
     if (!(file instanceof File) || file.size === 0) {
         return undefined;
@@ -128,6 +138,9 @@ export type FormState = {
         currentPassword?: string[];
         newPassword?: string[];
         currentPasswordConfirm?: string[];
+        question?: string[];
+        answer?: string[];
+        isPublished?: string[];
     };
     success?: boolean;
 };
@@ -596,6 +609,59 @@ export async function deleteAdvertisementByAdmin(id: string | number): Promise<v
     if (!token) throw new Error('Authentication failed. Please log in again.');
     await deleteAdvertisement(id, token);
     revalidatePath('/admin/dashboard/advertisements');
+}
+
+export async function createInterviewQuestionByAdmin(prevState: FormState, formData: FormData): Promise<FormState> {
+    const token = (await cookies()).get('token')?.value;
+    if (!token) return { message: 'Authentication failed. Please log in again.' };
+
+    const validatedFields = InterviewQuestionFormSchema.safeParse({
+        question: formData.get('question'),
+        answer: formData.get('answer'),
+        category: formData.get('category') || '',
+        isPublished: formData.get('isPublished') ? 'true' : 'false',
+    });
+    if (!validatedFields.success) {
+        return { message: 'Validation failed', errors: validatedFields.error.flatten().fieldErrors };
+    }
+
+    try {
+        await createInterviewQuestion(
+            {
+                question: validatedFields.data.question,
+                answer: validatedFields.data.answer,
+                category: validatedFields.data.category || undefined,
+                isPublished: validatedFields.data.isPublished === 'true',
+            },
+            token
+        );
+        revalidatePath('/admin/dashboard/interview-questions');
+        revalidatePath('/interview-questions');
+        return { message: 'Interview question created successfully', success: true };
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        return { message: `Failed to create interview question: ${errorMessage}` };
+    }
+}
+
+export async function setInterviewQuestionPublishStatus(
+    id: string | number,
+    isPublished: boolean
+): Promise<void> {
+    const token = (await cookies()).get('token')?.value;
+    if (!token) throw new Error('Authentication failed. Please log in again.');
+
+    await updateInterviewQuestion(id, { isPublished }, token);
+    revalidatePath('/admin/dashboard/interview-questions');
+    revalidatePath('/interview-questions');
+}
+
+export async function deleteInterviewQuestionByAdmin(id: string | number): Promise<void> {
+    const token = (await cookies()).get('token')?.value;
+    if (!token) throw new Error('Authentication failed. Please log in again.');
+    await deleteInterviewQuestion(id, token);
+    revalidatePath('/admin/dashboard/interview-questions');
+    revalidatePath('/interview-questions');
 }
 
 export async function updateContactStatusByAdmin(

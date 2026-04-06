@@ -41,6 +41,17 @@ export interface Advertisement {
     updatedAt?: string;
 }
 
+export interface InterviewQuestion {
+    id: number | string;
+    question: string;
+    answer: string;
+    category?: string | null;
+    isPublished?: boolean;
+    authorName?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
 export interface ContactMessage {
     id: number;
     name: string;

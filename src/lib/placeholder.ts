@@ -6,6 +6,7 @@ export const navLinks = [
     { name: "Cloud", href: "/cloud" },
     { name: "IaC", href: "/iac" },
     { name: "Observability", href: "/observability" },
+    { name: "Interview Q&A", href: "/interview-questions" },
     { name: "Contact", href: "/contact" },
 ];
 
