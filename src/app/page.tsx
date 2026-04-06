@@ -34,13 +34,6 @@ export default async function HomePage() {
     })
     .slice(0, 6);
 
-  const stats = [
-    { label: 'Learning Topics', value: 2 },
-    { label: 'Published Lessons', value: 12 },
-    { label: 'Hands-on Projects', value: 1 },
-    { label: 'Interview Q&A', value: 0 },
-  ];
-
   const learningAreas = [
     {
       title: 'Linux & Networking',
@@ -140,15 +133,15 @@ export default async function HomePage() {
           </Link>
         </div>
         <div className="rounded-3xl border border-slate-200 bg-white/90 p-8 shadow-sm">
-          <h3 className="text-2xl font-semibold text-slate-900">Hands-on Projects</h3>
+          <h3 className="text-2xl font-semibold text-slate-900">Blogs</h3>
           <p className="mt-3 text-sm text-slate-600">
-            Real-world DevOps projects with step-by-step guides. Build, deploy, and automate.
+            Blogs message goes here. Read updates, tips, and deeper dives from the DevOpsTic community.
           </p>
           <Link
             href="/blog"
             className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-900"
           >
-            View Projects <ArrowRight className="h-4 w-4" />
+            View Blogs <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </section>
