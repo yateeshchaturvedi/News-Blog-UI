@@ -1,4 +1,4 @@
-import { Github, Linkedin, Youtube, Rss } from "lucide-react";
+import { Github, Linkedin } from "lucide-react";
 import Link from "next/link";
 
 export default function Footer() {
@@ -22,8 +22,6 @@ export default function Footer() {
                     <div className="flex items-center gap-3">
                         <a href="#" className="rounded-full border border-slate-200 bg-white p-2 text-slate-600 transition-all hover:-translate-y-0.5 hover:border-slate-300 hover:text-slate-900"><Github className="h-4 w-4" /></a>
                         <a href="#" className="rounded-full border border-slate-200 bg-white p-2 text-slate-600 transition-all hover:-translate-y-0.5 hover:border-slate-300 hover:text-slate-900"><Linkedin className="h-4 w-4" /></a>
-                        <a href="#" className="rounded-full border border-slate-200 bg-white p-2 text-slate-600 transition-all hover:-translate-y-0.5 hover:border-slate-300 hover:text-slate-900"><Youtube className="h-4 w-4" /></a>
-                        <a href="#" className="rounded-full border border-slate-200 bg-white p-2 text-slate-600 transition-all hover:-translate-y-0.5 hover:border-slate-300 hover:text-slate-900"><Rss className="h-4 w-4" /></a>
                     </div>
                 </div>
                 <div className="mt-8 border-t border-slate-200 pt-6 text-center text-xs uppercase tracking-[0.3em] text-slate-500">
