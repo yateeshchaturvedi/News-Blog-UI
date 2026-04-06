@@ -105,16 +105,6 @@ export default async function HomePage() {
                 Join the Community
               </Link>
             </div>
-            <div className="grid grid-cols-2 gap-4 pt-6 md:grid-cols-4">
-              {stats.map((stat) => (
-                <div key={stat.label} className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                  <div className="text-2xl font-semibold text-slate-900">{stat.value}</div>
-                  <div className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
       </section>
 
