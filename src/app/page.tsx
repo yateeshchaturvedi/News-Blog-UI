@@ -27,6 +27,7 @@ export const metadata: Metadata = {
 export default async function HomePage() {
   const [latestNews, blogs] = await Promise.all([getEnrichedNews(), getBlogs()]);
   const publishedBlogs = [...blogs]
+    .filter((blog) => (blog.status || 'APPROVED').toUpperCase() === 'APPROVED')
     .sort((a, b) => {
       const aTime = new Date(a.updatedAt || a.createdAt || 0).getTime();
       const bTime = new Date(b.updatedAt || b.createdAt || 0).getTime();

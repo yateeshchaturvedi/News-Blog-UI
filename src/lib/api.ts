@@ -45,6 +45,9 @@ interface ApiBlog {
     updatedAt?: string;
     created_at?: string;
     updated_at?: string;
+    status?: string;
+    author_name?: string;
+    author_avatar_url?: string;
 }
 
 interface ApiAdvertisement {
@@ -154,6 +157,9 @@ function mapApiBlog(blog: ApiBlog): Blog {
         content: blog.content || '',
         createdAt: blog.createdAt || blog.created_at || '',
         updatedAt: blog.updatedAt || blog.updated_at || blog.createdAt || blog.created_at || '',
+        status: blog.status,
+        authorName: blog.author_name || '',
+        authorAvatarUrl: blog.author_avatar_url || '',
     };
 }
 
@@ -522,9 +528,9 @@ export const deleteCategory = (id: string | number, token: string): Promise<void
     fetchAPI(`api/categories/${encodeURIComponent(String(id))}/`, { method: 'DELETE' }, token);
 
 // Blogs
-export const createBlog = (data: Pick<Blog, 'title' | 'content'>, token: string): Promise<Blog> =>
+export const createBlog = (data: Pick<Blog, 'title' | 'content'> & Partial<Pick<Blog, 'status'>>, token: string): Promise<Blog> =>
     fetchAPI('api/blogs/', { method: 'POST', body: JSON.stringify(data) }, token);
-export const updateBlog = (id: string | number, data: Pick<Blog, 'title' | 'content'>, token: string): Promise<Blog> =>
+export const updateBlog = (id: string | number, data: Pick<Blog, 'title' | 'content'> & Partial<Pick<Blog, 'status'>>, token: string): Promise<Blog> =>
     fetchAPI(`api/blogs/${encodeURIComponent(String(id))}/`, { method: 'PUT', body: JSON.stringify(data) }, token);
 export const deleteBlog = (id: string | number, token: string): Promise<void> =>
     fetchAPI(`api/blogs/${encodeURIComponent(String(id))}/`, { method: 'DELETE' }, token);
