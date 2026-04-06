@@ -1,11 +1,8 @@
 
 export const navLinks = [
-    { name: "CI/CD", href: "/cicd" },
-    { name: "Containers", href: "/containers" },
-    { name: "Kubernetes", href: "/kubernetes" },
-    { name: "Cloud", href: "/cloud" },
-    { name: "IaC", href: "/iac" },
-    { name: "Observability", href: "/observability" },
+    { name: "Notes", href: "/lessons" },
+    { name: "Projects", href: "/blog" },
+    { name: "Topics", href: "/topics" },
     { name: "Interview Q&A", href: "/interview-questions" },
     { name: "Contact", href: "/contact" },
 ];
