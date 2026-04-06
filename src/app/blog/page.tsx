@@ -1,6 +1,6 @@
-import NewsCard from "@/components/news-card";
+import BlogCard from "@/components/blog-card";
 import { getPaginatedBlogs } from "@/lib/api";
-import { Blog, NewsArticle } from "@/lib/types";
+import { Blog } from "@/lib/types";
 import type { Metadata } from "next";
 import PublicAdSlot from "@/components/PublicAdSlot";
 import Link from "next/link";
@@ -15,17 +15,6 @@ export const metadata: Metadata = {
     },
 };
 
-function stripHtml(content: string): string {
-    return content
-        .replace(/<[^>]+>/g, ' ')
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/\s+/g, ' ')
-        .trim();
-}
-
 export default async function BlogPage({
     searchParams,
 }: {
@@ -33,19 +22,15 @@ export default async function BlogPage({
 }) {
     const resolvedParams = await searchParams;
     const page = Math.max(1, Number.parseInt(resolvedParams.page || '1', 10) || 1);
-    const { items: blogs, pagination } = await getPaginatedBlogs(page, 9, 'APPROVED');
+    const approvedResponse = await getPaginatedBlogs(page, 9, 'APPROVED');
+    let blogs = approvedResponse.items;
+    let pagination = approvedResponse.pagination;
 
-    const articles: NewsArticle[] = blogs.map((blog: Blog) => ({
-        id: blog.id,
-        title: blog.title,
-        summary: stripHtml(blog.content).slice(0, 100) + "...",
-        full_content: blog.content,
-        imageUrl: "/placeholder.svg", // Use a placeholder image
-        category: "blog",
-        category_name: "Blog",
-        created_at: blog.createdAt,
-        updated_at: blog.updatedAt,
-    }));
+    if (blogs.length === 0) {
+        const allResponse = await getPaginatedBlogs(page, 9);
+        blogs = allResponse.items;
+        pagination = allResponse.pagination;
+    }
 
     return (
         <div className="space-y-8">
@@ -59,11 +44,17 @@ export default async function BlogPage({
                     </Link>
                 </div>
             </div>
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-                {articles.map((article: NewsArticle) => (
-                    <NewsCard key={article.id} article={article} />
-                ))}
-            </div>
+            {blogs.length > 0 ? (
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+                    {blogs.map((blog: Blog) => (
+                        <BlogCard key={blog.id} blog={blog} />
+                    ))}
+                </div>
+            ) : (
+                <div className="rounded-2xl border border-blue-100 bg-white/85 py-14 text-center text-slate-500 shadow-sm">
+                    <p>No blogs were found.</p>
+                </div>
+            )}
             <div className="flex items-center justify-center gap-3">
                 <Link
                     href={`/blog?page=${Math.max(1, pagination.page - 1)}`}

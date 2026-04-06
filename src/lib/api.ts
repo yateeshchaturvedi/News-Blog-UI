@@ -45,6 +45,9 @@ interface ApiBlog {
     updatedAt?: string;
     created_at?: string;
     updated_at?: string;
+    status?: string;
+    author_name?: string;
+    author_avatar_url?: string;
 }
 
 interface ApiAdvertisement {
@@ -154,6 +157,9 @@ function mapApiBlog(blog: ApiBlog): Blog {
         content: blog.content || '',
         createdAt: blog.createdAt || blog.created_at || '',
         updatedAt: blog.updatedAt || blog.updated_at || blog.createdAt || blog.created_at || '',
+        status: blog.status,
+        authorName: blog.author_name || '',
+        authorAvatarUrl: blog.author_avatar_url || '',
     };
 }
 
@@ -393,6 +399,17 @@ export const getBlogs = async (token?: string): Promise<Blog[]> => {
     return blogs.map((blog: ApiBlog) => mapApiBlog(blog));
 };
 
+export const getBlogById = async (id: string | number, token?: string): Promise<Blog | undefined> => {
+    try {
+        const blog = await fetchAPI(`api/blogs/${encodeURIComponent(String(id))}`, {}, token) as ApiBlog;
+        if (!blog) return undefined;
+        return mapApiBlog(blog);
+    } catch (error) {
+        console.error(`Error fetching blog by id ${id}:`, error);
+        return undefined;
+    }
+};
+
 // Interview Questions
 export const getInterviewQuestions = async (): Promise<InterviewQuestion[]> => {
     const data = await fetchAPI('api/interview-questions/', {});
@@ -522,9 +539,9 @@ export const deleteCategory = (id: string | number, token: string): Promise<void
     fetchAPI(`api/categories/${encodeURIComponent(String(id))}/`, { method: 'DELETE' }, token);
 
 // Blogs
-export const createBlog = (data: Pick<Blog, 'title' | 'content'>, token: string): Promise<Blog> =>
+export const createBlog = (data: Pick<Blog, 'title' | 'content'> & Partial<Pick<Blog, 'status'>>, token: string): Promise<Blog> =>
     fetchAPI('api/blogs/', { method: 'POST', body: JSON.stringify(data) }, token);
-export const updateBlog = (id: string | number, data: Pick<Blog, 'title' | 'content'>, token: string): Promise<Blog> =>
+export const updateBlog = (id: string | number, data: Pick<Blog, 'title' | 'content'> & Partial<Pick<Blog, 'status'>>, token: string): Promise<Blog> =>
     fetchAPI(`api/blogs/${encodeURIComponent(String(id))}/`, { method: 'PUT', body: JSON.stringify(data) }, token);
 export const deleteBlog = (id: string | number, token: string): Promise<void> =>
     fetchAPI(`api/blogs/${encodeURIComponent(String(id))}/`, { method: 'DELETE' }, token);

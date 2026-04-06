@@ -5,8 +5,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-manrope);
-  --font-mono: var(--font-manrope);
+  --font-sans: var(--font-sora);
+  --font-display: var(--font-space);
+  --font-mono: var(--font-jetbrains);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -47,23 +48,23 @@
 
 :root {
   --radius: 0.9rem;
-  --background: oklch(0.99 0.01 250);
-  --foreground: oklch(0.2 0.02 250);
-  --card: oklch(1 0.01 250);
+  --background: oklch(0.99 0.01 220);
+  --foreground: oklch(0.18 0.03 250);
+  --card: oklch(1 0.01 220);
   --card-foreground: oklch(0.2 0.02 250);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.5 0.18 250);
+  --primary: oklch(0.48 0.18 250);
   --primary-foreground: oklch(0.99 0.01 250);
-  --secondary: oklch(0.95 0.02 230);
+  --secondary: oklch(0.96 0.02 220);
   --secondary-foreground: oklch(0.25 0.02 250);
   --muted: oklch(0.95 0.02 230);
   --muted-foreground: oklch(0.5 0.03 250);
-  --accent: oklch(0.93 0.03 220);
+  --accent: oklch(0.92 0.04 210);
   --accent-foreground: oklch(0.22 0.02 250);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.88 0.02 240);
-  --input: oklch(0.88 0.02 240);
+  --border: oklch(0.88 0.02 230);
+  --input: oklch(0.88 0.02 230);
   --ring: oklch(0.6 0.14 250);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
@@ -121,9 +122,10 @@
   body {
     @apply bg-background text-foreground;
     background-image:
-      radial-gradient(circle at 92% 0%, rgba(15, 23, 42, 0.09), transparent 34%),
-      radial-gradient(circle at 8% 100%, rgba(37, 99, 235, 0.14), transparent 48%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(241, 245, 249, 0.92));
+      radial-gradient(circle at 86% 6%, rgba(14, 116, 144, 0.12), transparent 45%),
+      radial-gradient(circle at 12% 88%, rgba(37, 99, 235, 0.12), transparent 45%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 245, 249, 0.92));
+    background-size: 100% 100%, 100% 100%, 100% 100%;
     min-height: 100vh;
     font-feature-settings: "cv03", "cv04", "cv11";
   }
@@ -132,7 +134,7 @@
     color: oklch(0.18 0.03 255);
   }
   h1, h2, h3 {
-    font-family: var(--font-playfair), Georgia, serif;
+    font-family: var(--font-display), "Space Grotesk", system-ui, sans-serif;
     letter-spacing: -0.025em;
   }
 }
@@ -157,12 +159,24 @@
   }
 }
 
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
 @layer utilities {
   .animate-fade-up {
     animation: fade-up 480ms ease-out both;
   }
   .animate-soft-pulse {
     animation: soft-pulse 1.8s ease-in-out infinite;
+  }
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
   }
   .surface-card {
     @apply rounded-2xl border border-white/70 bg-white/85 shadow-[0_10px_30px_-12px_rgba(2,6,23,0.25)] backdrop-blur;
@@ -245,7 +259,7 @@
 .lesson-content h2,
 .lesson-content h3 {
   margin: 1rem 0 0.5rem;
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-display), "Space Grotesk", system-ui, sans-serif;
   font-weight: 700;
   line-height: 1.3;
 }

@@ -23,6 +23,9 @@ export interface Blog {
     content: string;
     createdAt: string;
     updatedAt: string;
+    status?: string;
+    authorName?: string;
+    authorAvatarUrl?: string;
 }
 
 export interface Category {

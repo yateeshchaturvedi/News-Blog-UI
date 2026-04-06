@@ -26,6 +26,17 @@ export default async function BlogsPage() {
                     className="space-y-3"
                 >
                     <Input name="title" placeholder="Blog title" required />
+                    <div>
+                        <label className="mb-1 block text-sm font-medium text-slate-700">Status</label>
+                        <select
+                            name="status"
+                            defaultValue="APPROVED"
+                            className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm"
+                        >
+                            <option value="APPROVED">APPROVED</option>
+                            <option value="PENDING">PENDING</option>
+                        </select>
+                    </div>
                     <RichTextEditor
                         name="content"
                         defaultValue=""
@@ -49,6 +60,17 @@ export default async function BlogsPage() {
                             className="space-y-2 rounded-lg border border-blue-50 p-4"
                         >
                             <Input name="title" defaultValue={blog.title} required />
+                            <div>
+                                <label className="mb-1 block text-sm font-medium text-slate-700">Status</label>
+                                <select
+                                    name="status"
+                                    defaultValue={blog.status || 'PENDING'}
+                                    className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm"
+                                >
+                                    <option value="APPROVED">APPROVED</option>
+                                    <option value="PENDING">PENDING</option>
+                                </select>
+                            </div>
                             <RichTextEditor
                                 name="content"
                                 defaultValue={blog.content || ''}

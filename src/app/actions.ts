@@ -71,6 +71,7 @@ const CategoryFormSchema = z.object({
 const BlogFormSchema = z.object({
     title: z.string().trim().min(3, 'Title must be at least 3 characters'),
     content: z.string().trim().min(10, 'Content must be at least 10 characters'),
+    status: z.string().trim().optional(),
 });
 
 const AdvertisementFormSchema = z.object({
@@ -488,13 +489,14 @@ export async function createBlogByAdmin(prevState: FormState, formData: FormData
     const validatedFields = BlogFormSchema.safeParse({
         title: formData.get('title'),
         content: formData.get('content'),
+        status: formData.get('status') || 'PENDING',
     });
     if (!validatedFields.success) {
         return { message: 'Validation failed', errors: validatedFields.error.flatten().fieldErrors };
     }
 
     try {
-        await createBlog(validatedFields.data, token);
+        await createBlog({ title: validatedFields.data.title, content: validatedFields.data.content, status: validatedFields.data.status }, token);
         revalidatePath('/admin/dashboard/blogs');
         revalidatePath('/blog');
         return { message: 'Blog created successfully', success: true };
@@ -511,13 +513,18 @@ export async function updateBlogByAdmin(id: string | number, prevState: FormStat
     const validatedFields = BlogFormSchema.safeParse({
         title: formData.get('title'),
         content: formData.get('content'),
+        status: formData.get('status') || 'PENDING',
     });
     if (!validatedFields.success) {
         return { message: 'Validation failed', errors: validatedFields.error.flatten().fieldErrors };
     }
 
     try {
-        await updateBlog(id, validatedFields.data, token);
+        await updateBlog(
+            id,
+            { title: validatedFields.data.title, content: validatedFields.data.content, status: validatedFields.data.status },
+            token
+        );
         revalidatePath('/admin/dashboard/blogs');
         revalidatePath('/blog');
         return { message: 'Blog updated successfully', success: true };
