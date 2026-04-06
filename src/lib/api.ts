@@ -399,6 +399,17 @@ export const getBlogs = async (token?: string): Promise<Blog[]> => {
     return blogs.map((blog: ApiBlog) => mapApiBlog(blog));
 };
 
+export const getBlogById = async (id: string | number, token?: string): Promise<Blog | undefined> => {
+    try {
+        const blog = await fetchAPI(`api/blogs/${encodeURIComponent(String(id))}`, {}, token) as ApiBlog;
+        if (!blog) return undefined;
+        return mapApiBlog(blog);
+    } catch (error) {
+        console.error(`Error fetching blog by id ${id}:`, error);
+        return undefined;
+    }
+};
+
 // Interview Questions
 export const getInterviewQuestions = async (): Promise<InterviewQuestion[]> => {
     const data = await fetchAPI('api/interview-questions/', {});
