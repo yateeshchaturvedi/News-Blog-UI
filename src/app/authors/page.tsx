@@ -7,7 +7,7 @@ import { normalizeCanonicalPath, toAbsoluteUrl } from '@/lib/seo';
 
 export const metadata: Metadata = {
   title: 'Authors',
-  description: 'Explore DevOpsTic lesson authors.',
+  description: 'Explore Devopstick lesson authors.',
   alternates: { canonical: normalizeCanonicalPath('/authors') },
 };
 
@@ -33,7 +33,7 @@ export default async function AuthorsPage() {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: 'DevOpsTic Authors',
+    name: 'Devopstick Authors',
     url: toAbsoluteUrl('/authors'),
     mainEntity: {
       '@type': 'ItemList',

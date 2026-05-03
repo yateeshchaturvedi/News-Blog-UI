@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
-  description: 'Terms of service for DevOpsTic Academy.',
+  description: 'Terms of service for Devopstick Academy.',
   alternates: { canonical: '/terms' },
 };
 
@@ -12,7 +12,7 @@ export default function TermsPage() {
       <h1 className="text-3xl font-semibold text-slate-900">Terms of Service</h1>
       <p className="text-sm text-slate-600">Last updated: February 22, 2026</p>
       <p className="text-slate-700">
-        By using DevOpsTic Academy, you agree to use the service lawfully and not post malicious, abusive, or infringing content.
+        By using Devopstick Academy, you agree to use the service lawfully and not post malicious, abusive, or infringing content.
       </p>
       <h2 className="text-xl font-semibold text-slate-900">User Responsibilities</h2>
       <ul className="list-disc space-y-1 pl-6 text-slate-700">

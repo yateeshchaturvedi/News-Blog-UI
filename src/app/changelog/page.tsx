@@ -4,7 +4,7 @@ import { normalizeCanonicalPath } from '@/lib/seo';
 
 export const metadata: Metadata = {
   title: 'Changelog',
-  description: 'Track product updates and platform improvements for DevOpsTic.',
+  description: 'Track product updates and platform improvements for Devopstick.',
   alternates: { canonical: normalizeCanonicalPath('/changelog') },
 };
 

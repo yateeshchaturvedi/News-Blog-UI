@@ -1,4 +1,4 @@
-const fallbackSiteUrl = 'https://news-blog-ui.vercel.app';
+const fallbackSiteUrl = 'https://devopstic.vercel.app';
 
 export function getSiteUrl() {
   return (process.env.NEXT_PUBLIC_SITE_URL || fallbackSiteUrl).replace(/\/+$/, '');

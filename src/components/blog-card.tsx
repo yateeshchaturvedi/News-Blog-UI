@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Blog } from "@/lib/types";
+import { formatDate } from "@/lib/utils";
 
 function stripHtml(content: string): string {
     return content
@@ -23,7 +24,7 @@ export default function BlogCard({ blog }: { blog: Blog }) {
                     <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white">
                         Blog
                     </span>
-                    <span className="text-xs text-slate-200">DevOpsTic</span>
+                    <span className="text-xs text-slate-200">Devopstick</span>
                 </div>
                 <div className="flex flex-grow flex-col p-5">
                     <h3 className="mb-2 line-clamp-2 text-xl font-semibold text-slate-900 transition-colors group-hover:text-slate-700">
@@ -34,14 +35,14 @@ export default function BlogCard({ blog }: { blog: Blog }) {
                     </p>
                     <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-3">
                         <span className="text-[11px] font-medium text-slate-500">
-                            {blog.authorName || 'DevOpsTic Team'}
+                            {blog.authorName || 'Author not provided'}
                         </span>
-                        <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-700 transition-all group-hover:border-slate-300 group-hover:bg-white">
+                        <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-700 transition-all group-hover:border-primary group-hover:bg-primary group-hover:text-white">
                             Read blog
                         </span>
                     </div>
                     <span className="mt-1 text-[11px] text-slate-400">
-                        {createdDate ? new Date(createdDate).toLocaleDateString() : 'N/A'}
+                        {formatDate(createdDate)}
                     </span>
                 </div>
             </div>

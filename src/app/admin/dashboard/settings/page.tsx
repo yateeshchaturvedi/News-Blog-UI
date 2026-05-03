@@ -25,65 +25,77 @@ export default function SettingsPage() {
     const [state, formAction] = useActionState(createEditorByAdmin, initialState);
 
     return (
-        <div className="space-y-8">
-            <div className="rounded-2xl border border-blue-100 bg-white/85 p-6 shadow-sm">
-                <h1 className="text-3xl font-semibold text-slate-900">Settings</h1>
-                <p className="mt-2 text-sm text-slate-600">Manage admin-level configuration and access controls.</p>
+        <div className="flex flex-1 flex-col gap-10 p-2">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Platform Settings</h1>
+                    <p className="text-sm text-slate-500">Manage administrative configurations and operational access.</p>
+                </div>
             </div>
 
-            <Card className="border-blue-100 bg-white/90 shadow-sm">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-xl">
-                        <ShieldCheck className="h-5 w-5 text-blue-700" />
-                        Editor Access Management
-                    </CardTitle>
-                    <CardDescription>Create new editor accounts for content operations.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form action={formAction} className="space-y-4">
+            <div className="grid grid-cols-1 gap-10 lg:grid-cols-[400px_1fr]">
+                 <div className="space-y-6">
+                    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <h2 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+                            <ShieldCheck className="h-5 w-5 text-primary" />
+                            Access Control
+                        </h2>
+                        <p className="mt-2 text-sm text-slate-500">
+                            Editors can create and update content, but cannot delete or approve items without administrative override.
+                        </p>
+                    </div>
+                 </div>
+
+                 <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <h2 className="text-xl font-black text-slate-900 dark:text-white">Onboard New Editor</h2>
+                    <p className="mt-1 text-sm text-slate-500">Provide credentials for a new content team member.</p>
+                    
+                    <form action={formAction} className="mt-8 space-y-6">
                         {state.message && (
-                            <div className={`flex items-center gap-x-3 rounded-md p-3 text-sm ${
+                            <div className={`flex items-center gap-x-3 rounded-xl p-4 text-sm font-bold ${
                                 state.success
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-red-100 text-red-800'
+                                    ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400'
+                                    : 'bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-400'
                             }`}>
-                                {state.success ? <PartyPopper className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
-                                <p className="font-medium">{state.message}</p>
+                                {state.success ? <PartyPopper className="h-5 w-5" /> : <AlertCircle className="h-5 w-5" />}
+                                <p>{state.message}</p>
                             </div>
                         )}
-                        <div className="grid gap-4 md:grid-cols-2">
-                            <div className="space-y-2">
-                                <Label htmlFor="username">Editor Username</Label>
-                                <Input id="username" name="username" placeholder="editor_username" required />
-                                {state.errors?.username && <p className="text-xs text-red-500">{state.errors.username[0]}</p>}
+
+                        <div className="grid gap-6 md:grid-cols-2">
+                            <div className="space-y-1.5">
+                                <Label htmlFor="username" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Username</Label>
+                                <Input id="username" name="username" placeholder="editor_devopstick" required className="h-11 rounded-xl" />
+                                {state.errors?.username && <p className="text-[10px] font-bold text-red-500 uppercase tracking-tight">{state.errors.username[0]}</p>}
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="password">Temporary Password</Label>
-                                <Input id="password" name="password" type="password" placeholder="At least 6 characters" required />
-                                {state.errors?.password && <p className="text-xs text-red-500">{state.errors.password[0]}</p>}
+                            <div className="space-y-1.5">
+                                <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Temporary Password</Label>
+                                <Input id="password" name="password" type="password" placeholder="••••••••" required className="h-11 rounded-xl" />
+                                {state.errors?.password && <p className="text-[10px] font-bold text-red-500 uppercase tracking-tight">{state.errors.password[0]}</p>}
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="fullName">Full Name</Label>
-                                <Input id="fullName" name="fullName" placeholder="Editor full name" required />
-                                {state.errors?.fullName && <p className="text-xs text-red-500">{state.errors.fullName[0]}</p>}
+                            <div className="space-y-1.5">
+                                <Label htmlFor="fullName" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Full Name</Label>
+                                <Input id="fullName" name="fullName" placeholder="John Doe" required className="h-11 rounded-xl" />
+                                {state.errors?.fullName && <p className="text-[10px] font-bold text-red-500 uppercase tracking-tight">{state.errors.fullName[0]}</p>}
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
-                                <Input id="email" name="email" type="email" placeholder="editor@example.com" required />
-                                {state.errors?.email && <p className="text-xs text-red-500">{state.errors.email[0]}</p>}
+                            <div className="space-y-1.5">
+                                <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Professional Email</Label>
+                                <Input id="email" name="email" type="email" placeholder="john@devopstick.com" required className="h-11 rounded-xl" />
+                                {state.errors?.email && <p className="text-[10px] font-bold text-red-500 uppercase tracking-tight">{state.errors.email[0]}</p>}
                             </div>
-                            <div className="space-y-2 md:col-span-2">
-                                <Label htmlFor="phone">Phone Number</Label>
-                                <Input id="phone" name="phone" placeholder="+1 555 123 4567" required />
-                                {state.errors?.phone && <p className="text-xs text-red-500">{state.errors.phone[0]}</p>}
+                            <div className="space-y-1.5 md:col-span-2">
+                                <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Phone Connection</Label>
+                                <Input id="phone" name="phone" placeholder="+1 (555) 000-0000" required className="h-11 rounded-xl" />
+                                {state.errors?.phone && <p className="text-[10px] font-bold text-red-500 uppercase tracking-tight">{state.errors.phone[0]}</p>}
                             </div>
                         </div>
-                        <div className="pt-2">
+
+                        <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
                             <CreateEditorButton />
                         </div>
                     </form>
-                </CardContent>
-            </Card>
+                 </div>
+            </div>
         </div>
     );
 }

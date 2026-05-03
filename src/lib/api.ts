@@ -6,9 +6,7 @@ const configuredApiBaseUrl =
 
 const API_BASE_URL = (
     configuredApiBaseUrl ||
-    (process.env.NODE_ENV === 'production'
-        ? 'https://news-blog-api-mzxq.onrender.com'
-        : 'http://localhost:3000')
+    'https://news-blog-api-mzxq.onrender.com'
 ).replace(/\/+$/, '');
 
 interface ApiArticle {

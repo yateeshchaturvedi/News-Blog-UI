@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
 import { Sora, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/header";
-import Footer from "@/components/footer";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { jwtDecode } from "jwt-decode";
 import { logout } from "@/app/actions";
 import { getSiteUrl } from "@/lib/seo";
-import PublicAdSlot from "@/components/PublicAdSlot";
+import PublicLayoutWrapper from "@/components/PublicLayoutWrapper";
 import CookieConsent from "@/components/CookieConsent";
+import PublicAdSlot from "@/components/PublicAdSlot";
 
 const sora = Sora({
   subsets: ["latin"],
@@ -29,24 +28,24 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: "DevOpsTic Academy - Learn DevOps by Building",
-    template: "%s | DevOpsTic Academy",
+    default: "Devopstick - Master the Art of DevOps",
+    template: "%s | Devopstick",
   },
-  description: "Hands-on DevOps learning with practical guides on CI/CD, Kubernetes, cloud, IaC, and observability.",
+  description: "The comprehensive learning platform for modern engineers. Master Linux, Docker, Kubernetes, and Cloud through production-ready curriculum.",
   alternates: {
     canonical: "/",
   },
   openGraph: {
     type: "website",
     url: "/",
-    siteName: "DevOpsTic Academy",
-    title: "DevOpsTic Academy - Learn DevOps by Building",
-    description: "Hands-on DevOps learning with practical guides on CI/CD, Kubernetes, cloud, IaC, and observability.",
+    siteName: "Devopstick",
+    title: "Devopstick - Master the Art of DevOps",
+    description: "The comprehensive learning platform for modern engineers. Master Linux, Docker, Kubernetes, and Cloud through production-ready curriculum.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "DevOpsTic Academy - Learn DevOps by Building",
-    description: "Hands-on DevOps learning with practical guides on CI/CD, Kubernetes, cloud, IaC, and observability.",
+    title: "Devopstick - Master the Art of DevOps",
+    description: "The comprehensive learning platform for modern engineers. Master Linux, Docker, Kubernetes, and Cloud through production-ready curriculum.",
   },
 };
 
@@ -107,12 +106,12 @@ export default async function RootLayout({
               </div>
             </div>
           )}
-          <Header />
-          <main className="mx-auto w-full max-w-[1240px] px-4 py-8 md:px-6 md:py-10">{children}</main>
-          <section className="mx-auto w-full max-w-[1240px] px-4 pb-8 md:px-6">
-            <PublicAdSlot placement="site-footer" title="Sponsored" />
-          </section>
-          <Footer />
+          <PublicLayoutWrapper
+            adSlot1={<PublicAdSlot placement="global-sidebar-1" title="Partner" compact />}
+            adSlot2={<PublicAdSlot placement="global-sidebar-2" title="Featured" compact />}
+          >
+            {children}
+          </PublicLayoutWrapper>
           <CookieConsent />
         </div>
       </body>

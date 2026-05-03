@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Data Retention Policy',
-  description: 'Data retention and account deletion policy for DevOpsTic Academy.',
+  description: 'Data retention and account deletion policy for Devopstick Academy.',
   alternates: { canonical: '/data-retention' },
 };
 

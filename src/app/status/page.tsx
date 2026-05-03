@@ -4,7 +4,7 @@ import { normalizeCanonicalPath } from '@/lib/seo';
 
 export const metadata: Metadata = {
   title: 'System Status',
-  description: 'Live service health and readiness status for DevOpsTic.',
+  description: 'Live service health and readiness status for Devopstick.',
   alternates: { canonical: normalizeCanonicalPath('/status') },
 };
 

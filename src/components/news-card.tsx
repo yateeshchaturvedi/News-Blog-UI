@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { NewsArticle } from "@/lib/types";
 import { buildLessonHref } from "@/lib/lesson-path";
+import { formatDate } from "@/lib/utils";
 
 export default function NewsCard({ article }: { article: NewsArticle }) {
     const placeholderImage = "/placeholder.svg";
@@ -42,12 +43,12 @@ export default function NewsCard({ article }: { article: NewsArticle }) {
                             />
                             <span className="text-[11px] font-medium text-slate-500">{article.author || 'Unknown author'}</span>
                         </div>
-                        <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-700 transition-all group-hover:border-slate-300 group-hover:bg-white">
+                        <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-700 transition-all group-hover:border-primary group-hover:bg-primary group-hover:text-white">
                             Start lesson
                         </span>
                     </div>
                     <span className="mt-1 text-[11px] text-slate-400">
-                        {createdDate ? new Date(createdDate).toLocaleDateString() : 'N/A'}
+                        {formatDate(createdDate || '')}
                     </span>
                 </div>
             </div>
