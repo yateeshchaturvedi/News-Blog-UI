@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Contact',
-  description: 'Contact DevOpsTic for help with learning tracks, partnerships, and support.',
+  description: 'Contact Devopstick for help with learning tracks, partnerships, and support.',
   alternates: {
     canonical: '/contact',
   },

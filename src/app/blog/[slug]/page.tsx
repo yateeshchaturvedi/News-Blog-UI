@@ -1,18 +1,21 @@
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { getBlogById } from '@/lib/api';
-import Breadcrumbs from '@/components/Breadcrumbs';
-import { normalizeCanonicalPath } from '@/lib/seo';
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { getBlogById } from "@/lib/api";
+import { formatDate } from "@/lib/utils";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import { normalizeCanonicalPath } from "@/lib/seo";
+import ReadingProgress from "@/components/devops/ReadingProgress";
+import PublicAdSlot from "@/components/PublicAdSlot";
 
 function stripHtml(content: string): string {
   return content
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/\s+/g, ' ')
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
@@ -27,13 +30,13 @@ export async function generateMetadata({
   const blog = await getBlogById(slug);
   if (!blog) {
     return {
-      title: 'Blog Not Found',
-      alternates: { canonical: '/blog' },
+      title: "Blog Not Found",
+      alternates: { canonical: "/blog" },
       robots: { index: false, follow: true },
     };
   }
 
-  const description = stripHtml(blog.content || '').slice(0, 160) || 'DevOps blog post';
+  const description = stripHtml(blog.content || "").slice(0, 160) || "DevOps blog post";
 
   return {
     title: blog.title,
@@ -42,13 +45,13 @@ export async function generateMetadata({
       canonical: normalizeCanonicalPath(`/blog/${slug}`),
     },
     openGraph: {
-      type: 'article',
+      type: "article",
       url: `/blog/${slug}`,
       title: blog.title,
       description,
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: blog.title,
       description,
     },
@@ -71,28 +74,37 @@ export default async function BlogDetailPage({
   const createdDate = blog.updatedAt || blog.createdAt;
 
   return (
-    <div className="space-y-8">
-      <Breadcrumbs items={[{ name: 'Home', href: '/' }, { name: 'Blog', href: '/blog' }, { name: blog.title }]} />
-      <article className="rounded-3xl border border-blue-100 bg-white/90 p-8 shadow-sm">
-        <div className="space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">DevOpsTic Blog</p>
-          <h1 className="text-4xl font-semibold text-slate-900">{blog.title}</h1>
-          <div className="flex flex-wrap items-center gap-2 text-sm text-slate-500">
-            <span>{blog.authorName || 'DevOpsTic Team'}</span>
-            <span>•</span>
-            <span>{createdDate ? new Date(createdDate).toLocaleDateString() : 'N/A'}</span>
+    <>
+      <ReadingProgress />
+      <div className="space-y-8">
+        <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Blog", href: "/blog" }, { name: blog.title }]} />
+        
+        <article className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900 transition-all">
+          <div className="space-y-4">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary border border-primary/10">
+               Devopstick Blog
+            </div>
+            <h1 className="text-4xl font-black tracking-tight text-slate-950 dark:text-white lg:text-5xl">{blog.title}</h1>
+            <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-500 dark:text-slate-400">
+              <div className="flex items-center gap-2">
+                 <div className="h-6 w-6 rounded-full bg-slate-100 dark:bg-slate-800" />
+                 <span>{blog.authorName || "Devopstick Team"}</span>
+              </div>
+              <span className="text-slate-300 dark:text-slate-700">•</span>
+              <span>{formatDate(createdDate)}</span>
+            </div>
           </div>
-        </div>
-        <div
-          className="lesson-content prose mt-8 max-w-none text-slate-700"
-          dangerouslySetInnerHTML={{ __html: blog.content || '' }}
-        />
-        <div className="mt-10">
-          <Link href="/blog" className="text-sm font-semibold text-blue-700 hover:underline">
-            &larr; Back to Blog
-          </Link>
-        </div>
-      </article>
-    </div>
+          <div
+            className="lesson-content prose mt-12 max-w-none text-slate-700 dark:text-slate-300 prose-headings:font-black prose-headings:text-slate-900 dark:prose-headings:text-white prose-a:text-primary dark:prose-a:text-primary prose-strong:text-slate-950 dark:prose-strong:text-white"
+            dangerouslySetInnerHTML={{ __html: blog.content || "" }}
+          />
+          <div className="mt-12 pt-8 border-t border-slate-100 dark:border-slate-800">
+            <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:gap-3 transition-all">
+              &larr; Back to Blog Archive
+            </Link>
+          </div>
+        </article>
+      </div>
+    </>
   );
 }

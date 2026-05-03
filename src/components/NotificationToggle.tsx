@@ -22,9 +22,14 @@ const apiBaseUrl = (
 ).replace(/\/+$/, '');
 
 export default function NotificationToggle() {
+    const [mounted, setMounted] = useState(false);
     const [busy, setBusy] = useState(false);
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [toast, setToast] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const isSupported =
         typeof window !== 'undefined' &&
@@ -32,9 +37,7 @@ export default function NotificationToggle() {
         'serviceWorker' in navigator &&
         'PushManager' in window;
 
-    if (!isSupported) return null;
-
-    const isGranted = Notification.permission === 'granted';
+    const isGranted = mounted && isSupported && Notification.permission === 'granted';
 
     useEffect(() => {
         let mounted = true;
@@ -150,6 +153,25 @@ export default function NotificationToggle() {
             setBusy(false);
         }
     };
+
+    if (!mounted) {
+        return (
+            <div className="relative">
+                <button
+                    type="button"
+                    disabled
+                    className="rounded-full border border-blue-100 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm opacity-50"
+                >
+                    <span className="inline-flex items-center gap-1">
+                        <Bell className="h-3.5 w-3.5" />
+                        Loading...
+                    </span>
+                </button>
+            </div>
+        );
+    }
+
+    if (!isSupported) return null;
 
     return (
         <div className="relative">

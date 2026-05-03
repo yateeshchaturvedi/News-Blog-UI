@@ -1,165 +1,185 @@
-import NewsCard from '@/components/news-card';
-import { getEnrichedNews } from './news/utils';
-import { getBlogs } from '@/lib/api';
-import Link from 'next/link';
-import type { Metadata } from 'next';
-import PublicAdSlot from '@/components/PublicAdSlot';
-import {
-  ArrowRight,
-  Cloud,
-  FolderTree,
-  GitBranch,
-  Rocket,
-  ServerCog,
-  TerminalSquare,
-} from 'lucide-react';
+import NewsCard from "@/components/news-card";
+import BlogCard from "@/components/blog-card";
+import PublicAdSlot from "@/components/PublicAdSlot";
+import { getEnrichedNews } from "./news/utils";
+import { getBlogs } from "@/lib/api";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowRight, BookOpen, CheckCircle2, Newspaper, Zap, Globe, Shield, Layers, Play } from "lucide-react";
+import { buildLessonHref } from "@/lib/lesson-path";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: 'Latest DevOps Lessons',
-  description: 'Browse the latest practical DevOps lessons on CI/CD, Kubernetes, cloud infrastructure, and observability.',
-  alternates: {
-    canonical: '/',
-  },
+  title: "Master the Art of DevOps",
+  description: "Browse the latest practical DevOps lessons and published blogs.",
+  alternates: { canonical: "/" },
 };
 
 export default async function HomePage() {
   const [latestNews, blogs] = await Promise.all([getEnrichedNews(), getBlogs()]);
-  const publishedBlogs = [...blogs]
-    .filter((blog) => (blog.status || 'APPROVED').toUpperCase() === 'APPROVED')
-    .sort((a, b) => {
-      const aTime = new Date(a.updatedAt || a.createdAt || 0).getTime();
-      const bTime = new Date(b.updatedAt || b.createdAt || 0).getTime();
-      return bTime - aTime;
-    })
-    .slice(0, 6);
+  const approvedBlogs = [...blogs].filter((blog) => (blog.status || "").toUpperCase() === "APPROVED");
+  const publishedBlogs = approvedBlogs.length > 0 ? approvedBlogs : blogs;
 
-  const learningAreas = [
-    {
-      title: 'Linux & Networking',
-      description: 'Shell literacy, system fundamentals, and network troubleshooting.',
-      icon: TerminalSquare,
-    },
-    {
-      title: 'Containers & Orchestration',
-      description: 'Docker workflows, Kubernetes basics, and deployment patterns.',
-      icon: ServerCog,
-    },
-    {
-      title: 'CI/CD Pipelines',
-      description: 'Automated builds, test gates, and release confidence.',
-      icon: Rocket,
-    },
-    {
-      title: 'Cloud Platforms',
-      description: 'Infrastructure planning, scaling, and reliability in the cloud.',
-      icon: Cloud,
-    },
-    {
-      title: 'Infrastructure as Code',
-      description: 'Declarative provisioning with Terraform and config tooling.',
-      icon: FolderTree,
-    },
-    {
-      title: 'Version Control',
-      description: 'Git strategies, branching discipline, and collaboration.',
-      icon: GitBranch,
-    },
-  ];
+  const sortedBlogs = [...publishedBlogs].sort((a, b) => {
+    const aTime = new Date(a.updatedAt || a.createdAt || 0).getTime();
+    const bTime = new Date(b.updatedAt || b.createdAt || 0).getTime();
+    return bTime - aTime;
+  });
+
+  const finalBlogs = sortedBlogs;
+
+  const topicMap = new Map<string, number>();
+  latestNews.forEach((article) => {
+    const label = article.category_name || "General";
+    topicMap.set(label, (topicMap.get(label) || 0) + 1);
+  });
+  const topics = Array.from(topicMap.entries())
+    .map(([label, count]) => ({ label, count }))
+    .sort((a, b) => b.count - a.count);
+  const topTopicCount = Math.max(1, ...topics.map((topic) => topic.count));
+  const featuredLesson = latestNews[0];
+  const featuredBlog = finalBlogs[0];
 
   return (
-    <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_300px]">
-      <div className="space-y-12">
-        <section className="relative overflow-hidden rounded-[2.5rem] border border-slate-200/80 bg-white/90 p-8 shadow-[0_20px_50px_-35px_rgba(15,23,42,0.35)] md:p-12">
-        <div className="absolute right-8 top-8 hidden h-36 w-36 rounded-full bg-gradient-to-br from-blue-200/60 via-cyan-200/40 to-transparent blur-2xl md:block" />
-        <div className="animate-fade-up space-y-6">
-            <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
-              Open Source Learning Platform
-            </span>
-            <h1 className="text-4xl font-semibold leading-tight text-slate-900 md:text-6xl">
-              Learn DevOps by building real systems.
-            </h1>
-            <p className="max-w-xl text-base leading-7 text-slate-600 md:text-lg">
-              A structured path of lessons, projects, and interview prep that makes cloud and
-              infrastructure work feel practical from day one.
-            </p>
-            <div className="flex flex-wrap items-center gap-3">
-              <Link
-                href="/lessons"
-                className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-slate-800"
-              >
-                Start Learning
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/contact"
-                className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-              >
-                Join the Community
-              </Link>
+    <div className="flex flex-col gap-20 pb-20">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden rounded-3xl bg-white pt-16 pb-24 dark:bg-slate-900 lg:pt-32 lg:pb-40 shadow-xl border border-slate-200 dark:border-slate-800">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(45rem_50rem_at_top,rgba(37,99,235,0.1),transparent)] opacity-20 dark:opacity-5" />
+        
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+            <div>
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-semibold leading-6 text-primary">
+                <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse" />
+                New: Kubernetes Mastery Course is Out!
+              </div>
+              <h1 className="mb-6 text-5xl font-black tracking-tight sm:text-6xl lg:text-7xl text-slate-950 dark:text-white">
+                Master the Art of <span className="text-primary italic">DevOps</span>
+              </h1>
+              <p className="mb-10 text-lg sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-lg">
+                The comprehensive learning platform for modern engineers. Master Linux, Docker, Kubernetes, and Cloud through production-ready curriculum.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link
+                  href="/lessons"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-8 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:-translate-y-0.5 active:translate-y-0"
+                >
+                  Start Learning Free <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  href="/blog"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-8 text-sm font-bold text-slate-700 transition-all hover:bg-slate-50 hover:-translate-y-0.5 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                >
+                  Explore Blogs <Play className="h-4 w-4 fill-current" />
+                </Link>
+              </div>
+              
+              {/* <div className="mt-10 flex items-center gap-4">
+                <div className="flex -space-x-2">
+                  {[1, 2, 3, 4].map((i) => (
+                    <img
+                      key={i}
+                      className="h-8 w-8 rounded-full border-2 border-white dark:border-slate-800"
+                      src={`https://i.pravatar.cc/100?img=${i + 10}`}
+                      alt="User avatar"
+                    />
+                  ))}
+                </div>
+                <div className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                  <span className="text-primary font-bold">10,000+</span> engineers already joined
+                </div>
+              </div> */}
+            </div>
+
+            <div className="relative hidden lg:block">
+              <div className="relative z-10 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-800">
+                <img
+                  src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1000&q=80"
+                  alt="Code Editor"
+                  className="h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                <div className="absolute bottom-8 left-8 right-8">
+                  <div className="flex items-center gap-4 rounded-2xl bg-white/10 p-4 backdrop-blur-xl border border-white/20">
+                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                        <Zap size={24} />
+                     </div>
+                     <div>
+                        <div className="text-xs font-bold uppercase tracking-wider text-white/60">Live Environment</div>
+                        <div className="text-sm font-bold text-white">Interactive Sandbox Terminal</div>
+                     </div>
+                  </div>
+                </div>
+              </div>
+              <div className="absolute -top-10 -right-10 -z-10 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
+              <div className="absolute -bottom-10 -left-10 -z-10 h-64 w-64 rounded-full bg-slate-900/10 blur-3xl opacity-20" />
             </div>
           </div>
-      </section>
-
-      <section className="space-y-8">
-        <div className="animate-fade-up space-y-2">
-          <h2 className="text-3xl font-semibold text-slate-900">What you&apos;ll learn</h2>
-          <p className="text-sm text-slate-600">
-            Core DevOps skills, from fundamentals to production-ready automation.
-          </p>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {learningAreas.map((area) => (
-            <div key={area.title} className="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-              <area.icon className="h-6 w-6 text-blue-600" />
-              <h3 className="mt-4 text-lg font-semibold text-slate-900">{area.title}</h3>
-              <p className="mt-2 text-sm text-slate-600">{area.description}</p>
-            </div>
-          ))}
         </div>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-3xl border border-slate-200 bg-white/90 p-8 shadow-sm">
-          <h3 className="text-2xl font-semibold text-slate-900">Learning Notes</h3>
-          <p className="mt-3 text-sm text-slate-600">
-            Structured notes on Linux, Docker, Kubernetes, and cloud foundations. Learn at your own pace.
-          </p>
-          <Link
-            href="/lessons"
-            className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-900"
-          >
-            Explore Notes <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-        <div className="rounded-3xl border border-slate-200 bg-white/90 p-8 shadow-sm">
-          <h3 className="text-2xl font-semibold text-slate-900">Published Blogs</h3>
-          <p className="mt-3 text-sm text-slate-600">
-            Browse published blog posts with insights, updates, and deeper dives from the DevOpsTic community.
-          </p>
-          <Link
-            href="/blog"
-            className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-900"
-          >
-            View Blogs <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
+      {/* Trust & Features */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+         <div className="mb-12 text-center">
+            <h2 className="mb-4 text-3xl font-black tracking-tight lg:text-4xl text-slate-950 dark:text-white">Why Learn with <span className="text-primary italic">Devopstick</span>?</h2>
+            <p className="mx-auto max-w-2xl text-slate-600 dark:text-slate-400">Expertise-driven curriculum designed to take you from a curious beginner to a professional cloud architect.</p>
+         </div>
+         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {[
+              { title: 'Industry Experts', desc: 'Curriculum built by DevOps professionals and Tech leads.', icon: Globe },
+              { title: 'Modular Learning', desc: 'Bite-sized modules that fit into your busy schedule.', icon: Layers },
+              { title: 'Secure Mindset', desc: 'Security integrated into every step of the learning path.', icon: Shield },
+            ].map((feature, i) => (
+              <div key={i} className="rounded-2xl border border-slate-200 bg-white p-8 transition-all hover:border-primary hover:shadow-xl hover:shadow-primary/5 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-primary">
+                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <feature.icon className="h-6 w-6" />
+                </div>
+                <h3 className="mb-3 text-lg font-bold text-slate-950 dark:text-white">{feature.title}</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{feature.desc}</p>
+              </div>
+            ))}
+         </div>
       </section>
 
-      <section className="space-y-8">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h2 className="text-3xl font-semibold text-slate-900">Latest lessons</h2>
-            <p className="mt-2 text-sm text-slate-600">Fresh releases and updates from the community.</p>
+      {/* Topics Section */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-12 flex flex-col items-end justify-between gap-4 sm:flex-row sm:items-center">
+          <div className="max-w-xl">
+            <h2 className="mb-4 text-3xl font-black tracking-tight lg:text-4xl underline decoration-primary decoration-4 underline-offset-8 text-slate-950 dark:text-white">Learning Paths</h2>
+            <p className="text-slate-600 dark:text-slate-400">Dive deep into the core tools of modern DevOps.</p>
           </div>
-          <Link
-            href="/lessons"
-            className="rounded-full border border-slate-200 bg-white px-5 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-          >
-            Explore all lessons
+          <Link href="/topics" className="group flex items-center gap-2 font-bold text-primary">
+            View All Topics <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
+        
+        {topics.length > 0 ? (
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+            {topics.slice(0, 4).map((topic) => (
+              <div key={topic.label} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 mb-4">
+                  <Layers size={20} />
+                </div>
+                <h3 className="text-lg font-bold text-slate-950 dark:text-white">{topic.label}</h3>
+                <p className="mt-2 text-sm text-slate-500">{topic.count} Lessons</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+            No topics available.
+          </div>
+        )}
+      </section>
+
+      {/* Latest Lessons */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-12 text-center">
+          <h2 className="mb-4 text-3xl font-black tracking-tight lg:text-4xl text-slate-950 dark:text-white">Latest <span className="text-primary italic">Lessons</span></h2>
+          <p className="mx-auto max-w-2xl text-slate-600 dark:text-slate-400">Freshly published content from our engineering team.</p>
+        </div>
+        
         {latestNews.length > 0 ? (
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
             {latestNews.slice(0, 6).map((article) => (
@@ -167,42 +187,51 @@ export default async function HomePage() {
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-slate-200 bg-white/85 py-14 text-center text-slate-500 shadow-sm">
-            <p>No lessons found yet.</p>
+          <div className="rounded-2xl border border-slate-200 bg-white py-20 text-center text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+            No lessons published yet.
           </div>
         )}
+        
+        <div className="mt-12 text-center">
+          <Link
+            href="/lessons"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-8 text-sm font-bold text-slate-700 transition-all hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+          >
+            Explore All Lessons
+          </Link>
+        </div>
       </section>
-      </div>
 
-      <aside className="space-y-6">
-        <div className="rounded-2xl border border-blue-100 bg-white/90 p-3 shadow-sm">
-          <PublicAdSlot placement="homepage-top" title="Sponsored" compact />
-        </div>
-
-        <div className="rounded-2xl border border-blue-100 bg-white/90 p-5 shadow-sm">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-slate-900">Published Blogs</h2>
-            <Link href="/blog" className="text-xs font-semibold text-blue-700 hover:underline">
-              View all
-            </Link>
+      {/* Blogs Section */}
+      <section className="bg-slate-50 py-24 dark:bg-slate-950/50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-12">
+            <h2 className="mb-4 text-3xl font-black tracking-tight lg:text-4xl text-slate-950 dark:text-white">Latest from <span className="text-primary italic">Our Blog</span></h2>
+            <p className="text-slate-600 dark:text-slate-400">Insights, tutorials, and thoughts on the evolving world of cloud computing.</p>
           </div>
-          {publishedBlogs.length > 0 ? (
-            <div className="space-y-3">
-              {publishedBlogs.map((blog) => (
-                <Link
-                  key={blog.id}
-                  href={`/blog/${blog.id}`}
-                  className="block rounded-lg border border-blue-50 px-3 py-2 transition-colors hover:bg-blue-50/70"
-                >
-                  <p className="line-clamp-2 text-sm font-medium text-slate-900">{blog.title}</p>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-slate-500">No blogs published yet.</p>
-          )}
+          
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {finalBlogs.length > 0 ? (
+              finalBlogs.slice(0, 3).map((blog) => (
+                <BlogCard key={blog.id} blog={blog} />
+              ))
+            ) : (
+              <div className="col-span-full py-12 text-center text-slate-500">
+                No blog posts found in the API.
+              </div>
+            )}
+          </div>
+
+          <div className="mt-12 text-center">
+             <Link
+              href="/blog"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-8 text-sm font-bold text-slate-700 transition-all hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+             >
+                Read All Articles
+             </Link>
+          </div>
         </div>
-      </aside>
+      </section>
     </div>
   );
 }
