@@ -1,7 +1,8 @@
 "use client";
 
 import { Mail, Send, LoaderCircle, PartyPopper, AlertCircle } from "lucide-react";
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
+import { useActionState } from "react";
 import { submitContactForm } from "@/app/actions";
 
 interface FormState {
@@ -45,7 +46,7 @@ function SubmitButton() {
 }
 
 export default function ContactPage() {
-  const [state, formAction] = useFormState(submitContactForm, initialState);
+  const [state, formAction] = useActionState(submitContactForm, initialState);
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white py-12 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:py-16">
@@ -65,8 +66,8 @@ export default function ContactPage() {
               </div>
               <div>
                 <h2 className="font-semibold text-slate-950 dark:text-white">Email</h2>
-                <a href="mailto:hello@Devopstick.academy" className="mt-1 block text-sm text-slate-600 hover:text-cyan-700 dark:text-slate-300">
-                  hello@Devopstick.academy
+                <a href="mailto:ychandra0405@gmail.com" className="mt-1 block text-sm text-slate-600 hover:text-cyan-700 dark:text-slate-300">
+                  ychandra0405@gmail.com
                 </a>
               </div>
             </div>
